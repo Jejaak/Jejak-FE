@@ -110,6 +110,7 @@ export function DownloadsGame({ onExit }: { onExit?: () => void }) {
   const [tutorialStep, setTutorialStep] = useState<number | null>(null);
   const [exitConfirmOpen, setExitConfirmOpen] = useState(false);
   const [mascotShaking, setMascotShaking] = useState(false);
+  const [terminalFeedbackReady, setTerminalFeedbackReady] = useState(true);
   const [exiting, setExiting] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -308,15 +309,7 @@ export function DownloadsGame({ onExit }: { onExit?: () => void }) {
     if (!sessionRef.current || terminalRef.current || resolvingFileIdsRef.current.has(file.id)) return;
     resolvingFileIdsRef.current.add(file.id);
     const suspicious = file.suspicious ?? file.id.startsWith('bad-');
-    if (suspicious && action === 'ALLOW') {
-      if (mascotShakeTimeoutRef.current !== null) window.clearTimeout(mascotShakeTimeoutRef.current);
-      setMascotShaking(false);
-      window.requestAnimationFrame(() => setMascotShaking(true));
-      mascotShakeTimeoutRef.current = window.setTimeout(() => {
-        setMascotShaking(false);
-        mascotShakeTimeoutRef.current = null;
-      }, 550);
-    }
+    const dangerousHit = suspicious && action === 'ALLOW';
     const correct = action === (suspicious ? 'BLOCK' : 'ALLOW');
     const effect = {
       safe: Number(correct && !suspicious),
@@ -326,6 +319,17 @@ export function DownloadsGame({ onExit }: { onExit?: () => void }) {
     pendingFilesRef.current.set(file.id, file);
     const nextSafeCount = Math.min(safeTarget, displaySafeCountRef.current + effect.safe);
     const nextMistakes = Math.min(maxMistakes, displayMistakesRef.current + effect.mistakes);
+    if (dangerousHit) {
+      if (mascotShakeTimeoutRef.current !== null) window.clearTimeout(mascotShakeTimeoutRef.current);
+      if (nextMistakes >= maxMistakes && !reduceMotion) setTerminalFeedbackReady(false);
+      setMascotShaking(false);
+      window.requestAnimationFrame(() => setMascotShaking(true));
+      mascotShakeTimeoutRef.current = window.setTimeout(() => {
+        setMascotShaking(false);
+        setTerminalFeedbackReady(true);
+        mascotShakeTimeoutRef.current = null;
+      }, 550);
+    }
     displaySafeCountRef.current = nextSafeCount;
     displayMistakesRef.current = nextMistakes;
     terminalRef.current = nextSafeCount >= safeTarget || nextMistakes >= maxMistakes;
@@ -355,7 +359,7 @@ export function DownloadsGame({ onExit }: { onExit?: () => void }) {
       return;
     }
     socket.send(JSON.stringify({ type: 'action', requestId: file.id, fileId: file.id, action }));
-  }, []);
+  }, [reduceMotion]);
 
   useEffect(() => {
     if (tutorialStep !== null || result || activeFiles.length === 0) return undefined;
@@ -458,7 +462,7 @@ export function DownloadsGame({ onExit }: { onExit?: () => void }) {
     return <GameLoadingWindow error={error} message={publicId ? 'Memuat sesi unduhan…' : 'Membuat sesi unduhan…'} onBack={() => navigate('/')} onRetry={error ? () => window.location.reload() : undefined} sessionId={publicId} title="VIRUS.EXE" />;
   }
 
-  if (result) {
+  if (result && terminalFeedbackReady) {
     const won = result === 'won';
     return (
       <main className="game-stage downloads-stage centered" tabIndex={-1}>
