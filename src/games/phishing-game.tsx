@@ -511,8 +511,8 @@ export function PhishingGame({ onExit }: { onExit?: () => void }) {
 
           {!answered && (
             <div className="phishing-actions">
-              <button aria-pressed={marking} className="phishing-asset-button mark-email-button" disabled={saving} onClick={() => setMarking((current) => !current)} ref={markRef} type="button"><img alt="" aria-hidden="true" src="/assets/Shared/Game/email.png" /><span>Tandai Email</span></button>
-              <button className="phishing-asset-button save-email-button" disabled={saving} onClick={() => void saveAnswer()} ref={saveRef} type="button"><img alt="" aria-hidden="true" src="/assets/Shared/Game/save.png" /><span>{saving ? 'Menyimpan...' : 'Simpan'}</span></button>
+              <button aria-pressed={marking} className="phishing-asset-button mark-email-button" disabled={saving} onClick={() => setMarking((current) => !current)} ref={markRef} type="button"><img alt="" aria-hidden="true" src="/assets/Shared/Game/email.png" /><span>{marking ? 'Selesai Memilih' : 'Pilih Tanda'}</span></button>
+              <button className={`phishing-asset-button ${selectedRegions.length > 0 ? 'mark-email-button' : 'save-email-button'}`} disabled={saving} onClick={() => void saveAnswer()} ref={saveRef} type="button"><img alt="" aria-hidden="true" src={selectedRegions.length > 0 ? '/assets/Shared/Game/email.png' : '/assets/Shared/Game/save.png'} /><span>{saving ? 'Menyimpan...' : selectedRegions.length > 0 ? 'Tandai Email' : 'Simpan'}</span></button>
             </div>
           )}
           {marking && !answered && <p className="phishing-helper" role="status">Klik bagian email yang mencurigakan. Jika email aman, jangan tandai apa pun lalu Simpan.</p>}
