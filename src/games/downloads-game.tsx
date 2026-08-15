@@ -86,12 +86,17 @@ export function DownloadsGame({ onExit }: { onExit?: () => void }) {
   const { publicId } = useParams<{ publicId: string }>();
   const reduceMotion = useReducedMotion();
   const sessionRef = useRef<VirusSession | null>(null);
+  const displaySafeCountRef = useRef(0);
+  const displayMistakesRef = useRef(0);
+  const terminalRef = useRef(false);
+  const tutorialAutoOpenedRef = useRef(false);
   const activeFileIdsRef = useRef<string[]>([]);
   const fileStartedAtRef = useRef(new Map<string, number>());
   const resolvingFileIdsRef = useRef(new Set<string>());
   const pendingEffectsRef = useRef(new Map<string, { safe: number; mistakes: number }>());
   const pendingFilesRef = useRef(new Map<string, VirusFile>());
   const socketRef = useRef<WebSocket | null>(null);
+  const mascotShakeTimeoutRef = useRef<number | null>(null);
   const exitingRef = useRef(false);
   const hiddenAtRef = useRef<number | null>(null);
   const gamePausedRef = useRef(false);
@@ -104,6 +109,7 @@ export function DownloadsGame({ onExit }: { onExit?: () => void }) {
   const [fileProgress, setFileProgress] = useState<Record<string, number>>({});
   const [tutorialStep, setTutorialStep] = useState<number | null>(null);
   const [exitConfirmOpen, setExitConfirmOpen] = useState(false);
+  const [mascotShaking, setMascotShaking] = useState(false);
   const [exiting, setExiting] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -117,7 +123,7 @@ export function DownloadsGame({ onExit }: { onExit?: () => void }) {
     const file = session?.files.find((candidate) => candidate.id === id && !candidate.resolved);
     return file ? [file] : [];
   });
-  const overallProgress = activeFiles.reduce((highest, file) => Math.max(highest, fileProgress[file.id] ?? 0), 0);
+  const safeDownloadProgress = Math.min(100, displaySafeCount / safeTarget * 100);
 
   function syncDisplayedScore(loadedSession: VirusSession) {
     let pendingSafe = 0;
@@ -126,8 +132,13 @@ export function DownloadsGame({ onExit }: { onExit?: () => void }) {
       pendingSafe += effect.safe;
       pendingMistakes += effect.mistakes;
     }
-    setDisplaySafeCount(Math.min(safeTarget, loadedSession.safeCount + pendingSafe));
-    setDisplayMistakes(Math.min(maxMistakes, loadedSession.mistakes + pendingMistakes));
+    const safeCount = Math.min(safeTarget, loadedSession.safeCount + pendingSafe);
+    const mistakes = Math.min(maxMistakes, loadedSession.mistakes + pendingMistakes);
+    displaySafeCountRef.current = safeCount;
+    displayMistakesRef.current = mistakes;
+    terminalRef.current = loadedSession.status !== 'ACTIVE' || safeCount >= safeTarget || mistakes >= maxMistakes;
+    setDisplaySafeCount(safeCount);
+    setDisplayMistakes(mistakes);
   }
 
   const startWave = useCallback((loadedSession: VirusSession) => {
@@ -154,6 +165,7 @@ export function DownloadsGame({ onExit }: { onExit?: () => void }) {
   useEffect(() => {
     if (!auth.data) return;
     if (!publicId) {
+      tutorialAutoOpenedRef.current = false;
       void startVirusSession()
         .then((createdSession) => navigate(`/game/downloads/${createdSession.publicId}`, { replace: true }))
         .catch((loadError: unknown) => {
@@ -180,7 +192,14 @@ export function DownloadsGame({ onExit }: { onExit?: () => void }) {
           if (!active) return;
           gamePausedRef.current = false;
           pauseStartedAtRef.current = null;
+          terminalRef.current = false;
           startWave(loadedSession);
+          if (!tutorialAutoOpenedRef.current) {
+            tutorialAutoOpenedRef.current = true;
+            gamePausedRef.current = true;
+            pauseStartedAtRef.current = performance.now();
+            setTutorialStep(0);
+          }
           setLoading(false);
         });
         socket.addEventListener('message', (event) => {
@@ -213,7 +232,7 @@ export function DownloadsGame({ onExit }: { onExit?: () => void }) {
               !activeFileIdsRef.current.includes(candidate.id) &&
               !resolvingFileIdsRef.current.has(candidate.id),
             );
-            const replacements = response.session.status === 'ACTIVE'
+            const replacements = response.session.status === 'ACTIVE' && !terminalRef.current
               ? candidates.slice(0, Math.max(0, waveSizeRef.current - activeFileIdsRef.current.length))
               : [];
             if (replacements.length > 0) {
@@ -240,6 +259,14 @@ export function DownloadsGame({ onExit }: { onExit?: () => void }) {
             pendingEffectsRef.current.delete(message.requestId);
             pendingFilesRef.current.delete(message.requestId);
             if (sessionRef.current) syncDisplayedScore(sessionRef.current);
+            if (!terminalRef.current) {
+              if (pauseStartedAtRef.current !== null) {
+                const pausedFor = performance.now() - pauseStartedAtRef.current;
+                for (const [id, startedAt] of fileStartedAtRef.current) fileStartedAtRef.current.set(id, startedAt + pausedFor);
+              }
+              pauseStartedAtRef.current = null;
+              gamePausedRef.current = false;
+            }
             if (failedFile && sessionRef.current?.status === 'ACTIVE') {
               activeFileIdsRef.current = [...activeFileIdsRef.current, failedFile.id];
               fileStartedAtRef.current.set(failedFile.id, performance.now());
@@ -269,6 +296,8 @@ export function DownloadsGame({ onExit }: { onExit?: () => void }) {
       pauseStartedAtRef.current = null;
       exitingRef.current = false;
       activeFileIdsRef.current = [];
+      if (mascotShakeTimeoutRef.current !== null) window.clearTimeout(mascotShakeTimeoutRef.current);
+      mascotShakeTimeoutRef.current = null;
       fileStartedAtRef.current.clear();
       socketRef.current?.close(1000, 'Page left');
       socketRef.current = null;
@@ -276,9 +305,18 @@ export function DownloadsGame({ onExit }: { onExit?: () => void }) {
   }, [auth.data, navigate, onExit, publicId, startWave]);
 
   const decide = useCallback((file: VirusFile, action: 'ALLOW' | 'BLOCK') => {
-    if (!sessionRef.current || resolvingFileIdsRef.current.has(file.id)) return;
+    if (!sessionRef.current || terminalRef.current || resolvingFileIdsRef.current.has(file.id)) return;
     resolvingFileIdsRef.current.add(file.id);
     const suspicious = file.suspicious ?? file.id.startsWith('bad-');
+    if (suspicious && action === 'ALLOW') {
+      if (mascotShakeTimeoutRef.current !== null) window.clearTimeout(mascotShakeTimeoutRef.current);
+      setMascotShaking(false);
+      window.requestAnimationFrame(() => setMascotShaking(true));
+      mascotShakeTimeoutRef.current = window.setTimeout(() => {
+        setMascotShaking(false);
+        mascotShakeTimeoutRef.current = null;
+      }, 550);
+    }
     const correct = action === (suspicious ? 'BLOCK' : 'ALLOW');
     const effect = {
       safe: Number(correct && !suspicious),
@@ -286,8 +324,17 @@ export function DownloadsGame({ onExit }: { onExit?: () => void }) {
     };
     pendingEffectsRef.current.set(file.id, effect);
     pendingFilesRef.current.set(file.id, file);
-    setDisplaySafeCount((current) => Math.min(safeTarget, current + effect.safe));
-    setDisplayMistakes((current) => Math.min(maxMistakes, current + effect.mistakes));
+    const nextSafeCount = Math.min(safeTarget, displaySafeCountRef.current + effect.safe);
+    const nextMistakes = Math.min(maxMistakes, displayMistakesRef.current + effect.mistakes);
+    displaySafeCountRef.current = nextSafeCount;
+    displayMistakesRef.current = nextMistakes;
+    terminalRef.current = nextSafeCount >= safeTarget || nextMistakes >= maxMistakes;
+    if (terminalRef.current) {
+      gamePausedRef.current = true;
+      pauseStartedAtRef.current = performance.now();
+    }
+    setDisplaySafeCount(nextSafeCount);
+    setDisplayMistakes(nextMistakes);
     activeFileIdsRef.current = activeFileIdsRef.current.filter((id) => id !== file.id);
     fileStartedAtRef.current.delete(file.id);
     setActiveFileIds([...activeFileIdsRef.current]);
@@ -323,7 +370,7 @@ export function DownloadsGame({ onExit }: { onExit?: () => void }) {
     }
 
     const timer = window.setInterval(() => {
-      if (document.hidden || gamePausedRef.current) return;
+      if (document.hidden || gamePausedRef.current || terminalRef.current) return;
       const now = performance.now();
       const nextProgress: Record<string, number> = {};
       let completedFile: VirusFile | null = null;
@@ -442,7 +489,7 @@ export function DownloadsGame({ onExit }: { onExit?: () => void }) {
         </div>
       </div>
 
-      <img alt="Maskot JEJAK menunggu file" className="virus-target-mascot" src="/assets/Shared/Mascots/Mascot_Busy.png" />
+      <img alt="Maskot JEJAK menunggu file" className={`virus-target-mascot ${mascotShaking ? 'is-hit' : ''}`} src="/assets/Shared/Mascots/Mascot_Busy.png" />
       <section aria-label="File yang sedang diunduh" className="virus-download-area">
         {activeFiles.map((file) => {
           const progress = fileProgress[file.id] ?? 0;
@@ -469,7 +516,7 @@ export function DownloadsGame({ onExit }: { onExit?: () => void }) {
 
       <div className="virus-progress-window">
         <img alt="" aria-hidden="true" src="/assets/Game3/FileTerunduhBox.png" />
-        <div aria-label="Progres file terdepan" aria-valuemax={100} aria-valuemin={0} aria-valuenow={overallProgress} className="virus-progress-bar" role="progressbar"><span style={{ width: `${overallProgress}%` }} /></div>
+        <div aria-label={`${displaySafeCount} dari ${safeTarget} file aman telah diunduh`} aria-valuemax={safeTarget} aria-valuemin={0} aria-valuenow={displaySafeCount} className="virus-progress-bar" role="progressbar"><span style={{ width: `${safeDownloadProgress}%` }} /></div>
       </div>
       {error && <p className="virus-error" role="alert">{error}</p>}
 

@@ -309,6 +309,14 @@ button:disabled { cursor: not-allowed; filter: grayscale(.65); opacity: .62; }
 .virus-actions button { width: 3.4rem; height: 3.4rem; border: 0; background: transparent; padding: 0; }
 .virus-actions button img { width: 100%; height: 100%; object-fit: contain; }
 .virus-target-mascot { position: absolute; z-index: 4; left: 50%; bottom: 4%; width: clamp(9rem, 16vw, 14rem); max-height: 24dvh; object-fit: contain; object-position: bottom; transform: translateX(-50%); }
+.virus-target-mascot.is-hit { animation: virus-mascot-hit 550ms steps(2, jump-none); }
+@keyframes virus-mascot-hit {
+  0%, 100% { filter: none; transform: translateX(-50%) rotate(0); }
+  20% { filter: drop-shadow(0 0 10px #ff354f) saturate(1.6); transform: translateX(calc(-50% - 12px)) rotate(-5deg); }
+  40% { transform: translateX(calc(-50% + 12px)) rotate(5deg); }
+  60% { filter: drop-shadow(0 0 8px #ff354f) saturate(1.4); transform: translateX(calc(-50% - 8px)) rotate(-3deg); }
+  80% { transform: translateX(calc(-50% + 8px)) rotate(3deg); }
+}
 .virus-download-area { position: absolute; z-index: 3; inset: 0; }
 .virus-moving-file { position: absolute; display: grid; width: clamp(8rem, 14vw, 12rem); justify-items: center; gap: .25rem; border: 0; background: transparent; padding: .35rem; color: #171426; transform: translate(-50%, -50%); text-align: center; }
 .virus-moving-file:hover, .virus-moving-file:focus-visible { outline: 4px dashed #d43f81; outline-offset: .25rem; }
