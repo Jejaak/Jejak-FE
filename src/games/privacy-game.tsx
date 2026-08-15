@@ -71,23 +71,37 @@ export function PrivacyGame({ onExit }: { onExit?: () => void }) {
 
   useEffect(() => {
     let active = true;
-    const request = publicId ? getPrivacySession(publicId) : startPrivacySession();
-    void request
+    queueMicrotask(() => {
+      if (!active) return;
+      setLoading(true);
+      setError('');
+    });
+    if (!publicId) {
+      void startPrivacySession()
+        .then((result) => {
+          if (active) navigate(`/game/privacy/${result.publicId}`, { replace: true });
+        })
+        .catch(() => {
+          if (!active) return;
+          setError('Game Privasi tidak dapat dimuat. Pastikan backend aktif lalu coba lagi.');
+          setLoading(false);
+        });
+      return () => {
+        active = false;
+      };
+    }
+    void getPrivacySession(publicId)
       .then((result) => {
         if (!active) return;
-        if (!publicId) {
-          navigate(`/game/privacy/${result.publicId}`, { replace: true });
-          return;
-        }
         setGameSession(result);
         setScenarioIndex(Math.min(result.answeredCount, result.questionCount - 1));
         if (result.tutorialRequired) setTutorialStep(0);
+        setLoading(false);
       })
       .catch(() => {
-        if (active) setError('Game Privasi tidak dapat dimuat. Pastikan backend aktif lalu coba lagi.');
-      })
-      .finally(() => {
-        if (active) setLoading(false);
+        if (!active) return;
+        setError('Game Privasi tidak dapat dimuat. Pastikan backend aktif lalu coba lagi.');
+        setLoading(false);
       });
     return () => {
       active = false;
@@ -237,7 +251,6 @@ export function PrivacyGame({ onExit }: { onExit?: () => void }) {
 
   if (loading) return <GameLoadingWindow message={publicId ? 'Memuat sesi permainan…' : 'Membuat sesi permainan…'} sessionId={publicId} title="PRIVASI.EXE" />;
   if (!gameSession || !question) return <GameLoadingWindow error={error || 'Sesi Privasi tidak tersedia.'} onBack={() => navigate('/')} onRetry={() => void loadSession()} sessionId={publicId} title="PRIVASI.EXE" />;
-  if (!finished && !lost && socketState === 'connecting') return <GameLoadingWindow message="Menyambungkan koneksi realtime…" onBack={() => navigate('/')} sessionId={gameSession.publicId} title="PRIVASI.EXE" />;
   if (lost && !answerResult) {
     return <main className="game-stage centered"><GameResult detail={`Tiga jawaban keliru. Skor sesi: ${gameSession.score}/${gameSession.questionCount}.`} onExit={onExit ?? (() => navigate('/'))} onRetry={() => navigate('/game/privacy', { replace: true })} title="Nyawa habis" /></main>;
   }
