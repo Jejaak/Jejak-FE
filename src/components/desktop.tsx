@@ -124,7 +124,7 @@ interface DesktopTaskbarProps {
   pinnedState: Partial<Record<'browser' | 'inbox' | 'profile', TaskbarWindowState>>;
 }
 
-const taskButton = 'inline-flex h-10 shrink-0 items-center gap-1.5 whitespace-nowrap border-2 border-[#222] bg-[#d9dccd] px-3 font-black text-[#171426] shadow-[inset_2px_2px_0_white,inset_-2px_-2px_0_#717468] [text-shadow:none]';
+const taskButton = 'inline-flex h-10 shrink-0 items-center gap-1.5 whitespace-nowrap border-2 border-[#222] bg-[#d9dccd] px-3 font-black text-[#171426] shadow-[inset_2px_2px_0_white,inset_-2px_-2px_0_#717468] [text-shadow:none] max-sm:h-8 max-sm:gap-1 max-sm:px-2 max-sm:text-[.68rem]';
 const runningTaskButton = "relative after:absolute after:inset-x-2 after:bottom-0.5 after:h-1 after:bg-[#242768] after:content-['']";
 const activeTaskButton = 'bg-[#aaaead] shadow-[inset_2px_2px_0_#66695f,inset_-2px_-2px_0_white]';
 
@@ -138,11 +138,11 @@ function pinnedTaskButtonClass(state: TaskbarWindowState | undefined) {
 
 export function DesktopTaskbar({ items, onSelect, onBrowser, onInbox, onProfile, pinnedState }: DesktopTaskbarProps) {
   return (
-    <footer className="absolute inset-x-0 bottom-0 z-[200] flex h-[3.2rem] items-center border-t-[3px] border-[#eef0df] bg-[#bfc2b2] px-2 py-1 text-[#171426] shadow-[inset_0_2px_0_white] [text-shadow:none]">
-      <nav className="flex min-w-0 flex-1 gap-1.5 overflow-x-auto" aria-label="Aplikasi desktop">
-        <button aria-pressed={isTaskbarActive(pinnedState.browser)} className={pinnedTaskButtonClass(pinnedState.browser)} onClick={onBrowser} type="button"><img alt="" aria-hidden="true" className="size-6 object-contain" src="/assets/Desktop/IconBrowser.png" /> Browser</button>
-        <button aria-pressed={isTaskbarActive(pinnedState.inbox)} className={pinnedTaskButtonClass(pinnedState.inbox)} onClick={onInbox} type="button"><img alt="" aria-hidden="true" className="size-6 object-contain" src="/assets/Desktop/IconInbox.png" /> Inbox</button>
-        <button aria-pressed={isTaskbarActive(pinnedState.profile)} className={pinnedTaskButtonClass(pinnedState.profile)} onClick={onProfile} type="button"><img alt="" aria-hidden="true" className="size-6 object-contain" src="/assets/Desktop/IconProfile.png" /> Profile</button>
+    <footer className="absolute inset-x-0 bottom-0 z-[200] flex h-[3.2rem] items-center border-t-[3px] border-[#eef0df] bg-[#bfc2b2] px-2 py-1 text-[#171426] shadow-[inset_0_2px_0_white] [text-shadow:none] max-sm:h-[2.45rem] max-sm:px-1 max-sm:py-0.5">
+      <nav className="flex min-w-0 flex-1 gap-1.5 overflow-x-auto max-sm:gap-0.5" aria-label="Aplikasi desktop">
+        <button aria-pressed={isTaskbarActive(pinnedState.browser)} className={pinnedTaskButtonClass(pinnedState.browser)} onClick={onBrowser} type="button"><img alt="" aria-hidden="true" className="size-6 object-contain max-sm:size-4" src="/assets/Desktop/IconBrowser.png" /> Browser</button>
+        <button aria-pressed={isTaskbarActive(pinnedState.inbox)} className={pinnedTaskButtonClass(pinnedState.inbox)} onClick={onInbox} type="button"><img alt="" aria-hidden="true" className="size-6 object-contain max-sm:size-4" src="/assets/Desktop/IconInbox.png" /> Inbox</button>
+        <button aria-pressed={isTaskbarActive(pinnedState.profile)} className={pinnedTaskButtonClass(pinnedState.profile)} onClick={onProfile} type="button"><img alt="" aria-hidden="true" className="size-6 object-contain max-sm:size-4" src="/assets/Desktop/IconProfile.png" /> Profile</button>
         {items.map((item) => (
           <button
             aria-pressed={item.active && !item.minimized}
@@ -151,7 +151,7 @@ export function DesktopTaskbar({ items, onSelect, onBrowser, onInbox, onProfile,
             onClick={() => onSelect(item.id)}
             type="button"
           >
-            {item.icon.startsWith('/') ? <img alt="" aria-hidden="true" className="size-6 object-contain" src={item.icon} /> : <span aria-hidden="true">{item.icon}</span>} {item.label}
+            {item.icon.startsWith('/') ? <img alt="" aria-hidden="true" className="size-6 object-contain max-sm:size-4" src={item.icon} /> : <span aria-hidden="true">{item.icon}</span>} {item.label}
           </button>
         ))}
       </nav>
