@@ -16,6 +16,6 @@ export default defineConfig(({ mode }) => {
       strictPort: true,
       proxy: { '/api': { target: backendTarget, changeOrigin: true } },
     },
-    build: { sourcemap: false },
+    build: { target: 'es2020', sourcemap: false },
   };
 });
