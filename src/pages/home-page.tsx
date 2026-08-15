@@ -23,7 +23,7 @@ export function HomePage() {
 
   useEffect(() => {
     let active = true;
-    void getProgressSummary(Boolean(session.data)).then((value) => {
+    void getProgressSummary(Boolean(session.data?.user)).then((value) => {
       if (active) setSummary(value);
     });
     return () => { active = false; };
@@ -38,7 +38,7 @@ export function HomePage() {
     <main className="home-screen" tabIndex={-1}>
       <nav className="site-nav" aria-label="Navigasi utama">
         <Link className="wordmark" to="/">JEJAK</Link>
-        <div className="nav-actions"><span className="player-name">{session.data?.user.name}</span><button className="nav-button" onClick={() => void logout()} type="button">Logout</button></div>
+        <div className="nav-actions"><span className="player-name">{session.data?.user?.name}</span><button className="nav-button" onClick={() => void logout()} type="button">Logout</button></div>
       </nav>
       <section className="home-content">
         <motion.div animate={{ opacity: 1, y: 0 }} className="welcome-panel" initial={reduceMotion ? false : { opacity: 0, y: 18 }}>
