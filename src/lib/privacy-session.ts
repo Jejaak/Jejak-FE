@@ -1,7 +1,7 @@
 import { apiUrl, websocketUrl } from './api.ts';
 
 export type PrivacyChoice = 'SHARE' | 'REJECT';
-export type PrivacySessionStatus = 'ACTIVE' | 'COMPLETED' | 'ABANDONED';
+export type PrivacySessionStatus = 'ACTIVE' | 'COMPLETED' | 'LOST' | 'ABANDONED';
 
 export interface PrivacySessionQuestion {
   id: string;
@@ -21,6 +21,7 @@ export interface PrivacySession {
   answeredCount: number;
   score: number;
   mistakes: number;
+  tutorialRequired: boolean;
   questions: PrivacySessionQuestion[];
 }
 
@@ -64,6 +65,14 @@ export function startPrivacySession(): Promise<PrivacySession> {
   return apiRequest('/api/v1/privacy-sessions', {
     method: 'POST',
     body: JSON.stringify({}),
+  });
+}
+
+export function completePrivacyTutorial(sessionId: string): Promise<{ id: string; tutorialRequired: false }> {
+  return apiRequest(`/api/v1/privacy-sessions/${sessionId}/tutorial-completed`, {
+    method: 'POST',
+    body: JSON.stringify({}),
+    keepalive: true,
   });
 }
 
