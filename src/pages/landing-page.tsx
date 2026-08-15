@@ -1,6 +1,7 @@
 import { useRef, useState, type FormEvent } from 'react';
 import { useLocation, useNavigate } from 'react-router';
 import { DesktopTaskbar, DesktopWindow } from '../components/desktop.tsx';
+import { DesktopOnboarding } from '../components/desktop-onboarding.tsx';
 import { authClient } from '../lib/auth-client.ts';
 
 type AppId = 'welcome' | 'browser' | 'inbox' | 'profile';
@@ -20,6 +21,24 @@ const desktopGames: Array<{ id: GameApp; name: string; asset: string }> = [
 ];
 
 const desktopButton = 'grid w-[6.5rem] min-h-[6.5rem] content-center justify-items-center gap-1 p-1.5 text-center text-[1.05rem] text-white [text-shadow:2px_2px_0_#171426] hover:bg-[rgb(35_29_94_/_45%)] focus-visible:bg-[rgb(35_29_94_/_45%)]';
+const desktopTutorialStorageKey = 'jejak.desktopTutorialCompleted';
+
+function desktopTutorialCompleted(): boolean {
+  try {
+    return window.localStorage.getItem(desktopTutorialStorageKey) === 'true';
+  } catch {
+    return false;
+  }
+}
+
+function rememberDesktopTutorial(): void {
+  try {
+    window.localStorage.setItem(desktopTutorialStorageKey, 'true');
+  } catch {
+    return;
+  }
+}
+
 const dialogButton = 'min-h-10 min-w-24 border-2 border-[#171426] bg-[#d8dbcc] px-3 py-2 font-black text-[#171426] shadow-[inset_2px_2px_0_white,inset_-2px_-2px_0_#74776c]';
 
 function AuthBrowser({ mode, authenticated, user, onMode, onSuccess, onLogout }: { mode: AuthMode; authenticated: boolean; user?: { name: string; email: string } | undefined; onMode: (mode: AuthMode) => void; onSuccess: () => void; onLogout: () => void }) {
@@ -142,13 +161,36 @@ export function LandingPage() {
   const user = session.data?.user;
   const authenticated = Boolean(user);
   const initialRouteState = location.state as { authMode?: AuthMode; openBrowser?: boolean } | null;
+  const [onboardingStep, setOnboardingStep] = useState<number | null>(() => desktopTutorialCompleted() ? null : 0);
   const zRef = useRef(11);
   const [windows, setWindows] = useState<Partial<Record<AppId, WindowState>>>(() => ({
-    welcome: { minimized: false, maximized: false, zIndex: 10 },
+    ...(desktopTutorialCompleted() ? { welcome: { minimized: false, maximized: false, zIndex: 10 } } : {}),
     ...(initialRouteState?.openBrowser ? { browser: { minimized: false, maximized: false, zIndex: 11 } } : {}),
   }));
   const [authMode, setAuthMode] = useState<AuthMode>(initialRouteState?.authMode ?? 'login');
   const [pendingGame, setPendingGame] = useState<GameApp | null>(null);
+
+  function advanceOnboarding() {
+    if (onboardingStep === null) return;
+    if (onboardingStep < 11) {
+      const nextStep = onboardingStep + 1;
+      if (nextStep === 2) {
+        setAuthMode('register');
+        setWindows((current) => ({ ...current, browser: { minimized: false, maximized: false, zIndex: 320 } }));
+      } else if (nextStep === 3) {
+        setWindows((current) => {
+          const next = { ...current };
+          delete next.browser;
+          return next;
+        });
+      }
+      setOnboardingStep(nextStep);
+      return;
+    }
+    rememberDesktopTutorial();
+    setOnboardingStep(null);
+    setWindows((current) => ({ ...current, welcome: { minimized: false, maximized: false, zIndex: 10 } }));
+  }
 
   function activate(id: AppId) {
     zRef.current += 1;
@@ -213,10 +255,10 @@ export function LandingPage() {
   };
 
   return (
-    <main className="desktop-scanlines relative min-h-dvh overflow-hidden bg-[#756bb6] bg-[url('/assets/Home/Background.png')] bg-cover bg-center text-white [text-shadow:2px_2px_0_#171426]" ref={desktopRef} tabIndex={-1}>
-      <nav className="absolute top-[clamp(1.5rem,7vh,4rem)] left-[clamp(.7rem,3vw,2.5rem)] z-[2] grid gap-[clamp(.5rem,1.5vh,1rem)] max-sm:relative max-sm:top-auto max-sm:left-auto max-sm:w-48 max-sm:grid-cols-2 max-sm:gap-0.5 max-sm:p-1.5" aria-label="Pilih permainan">
+    <main className={`desktop-scanlines relative min-h-dvh overflow-hidden bg-[#756bb6] bg-[url('/assets/Home/Background.png')] bg-cover bg-center text-white [text-shadow:2px_2px_0_#171426] ${onboardingStep === null ? '' : `desktop-onboarding-active desktop-onboarding-step-${onboardingStep + 1}`}`} ref={desktopRef} tabIndex={-1}>
+      <nav className="desktop-game-shortcuts absolute top-[clamp(1.5rem,7vh,4rem)] left-[clamp(.7rem,3vw,2.5rem)] z-[2] grid gap-[clamp(.5rem,1.5vh,1rem)] max-sm:relative max-sm:top-auto max-sm:left-auto max-sm:w-48 max-sm:grid-cols-2 max-sm:gap-0.5 max-sm:p-1.5" aria-label="Pilih permainan">
         {desktopGames.map((game) => (
-          <button className={desktopButton} key={game.id} onClick={() => openGame(game.id)} type="button">
+          <button className={`${desktopButton} desktop-game-shortcut desktop-game-shortcut-${game.id}`} key={game.id} onClick={() => openGame(game.id)} type="button">
             <img alt="" aria-hidden="true" className="size-16 object-contain drop-shadow-[3px_3px_0_rgb(17_13_42_/_55%)]" src={game.asset} /><span>{game.name}</span>
           </button>
         ))}
@@ -234,6 +276,7 @@ export function LandingPage() {
       {windows.browser && <DesktopWindow className="top-[8%] left-[23%] w-[min(72vw,60rem)] max-lg:left-[16%] max-lg:w-[min(80vw,55rem)] max-sm:top-52 max-sm:left-2 max-sm:w-[calc(100vw-1rem)]" constraints={desktopRef} minimized={windows.browser.minimized} onActivate={() => activate('browser')} onClose={() => close('browser')} maximizable maximized={windows.browser.maximized} onMinimize={() => minimize('browser')} onToggleMaximize={() => toggleMaximize('browser')} resizable title="Browser" titleIcon="/assets/Desktop/IconBrowser.png" zIndex={windows.browser.zIndex}><AuthBrowser authenticated={authenticated} mode={authMode} onLogout={() => void logout()} onMode={setAuthMode} onSuccess={authSuccess} user={user ? { name: user.name, email: user.email } : undefined} /></DesktopWindow>}
       {windows.inbox && <DesktopWindow className="top-[27%] left-[36%] w-[min(90vw,28rem)]" constraints={desktopRef} minimized={windows.inbox.minimized} onActivate={() => activate('inbox')} onClose={() => close('inbox')} onMinimize={() => minimize('inbox')} title="Inbox" titleIcon="/assets/Desktop/IconInbox.png" zIndex={windows.inbox.zIndex}><div className="grid min-h-48 place-items-center p-5 text-center"><div><div className="mb-3 text-5xl" aria-hidden="true">✉</div><h2 className="text-2xl">Coming Soon</h2><p className="mb-0">Fitur pesan akan hadir pada pembaruan berikutnya.</p></div></div></DesktopWindow>}
       {windows.profile && <DesktopWindow className="top-[20%] left-[39%] w-[min(90vw,31rem)] max-sm:top-40 max-sm:left-2 max-sm:w-[calc(100vw-1rem)]" constraints={desktopRef} minimized={windows.profile.minimized} onActivate={() => activate('profile')} onClose={() => close('profile')} onMinimize={() => minimize('profile')} title="Profile" titleIcon="/assets/Desktop/IconProfile.png" zIndex={windows.profile.zIndex}><div className="grid min-h-56 grid-cols-[6rem_minmax(0,1fr)] gap-4 p-5 max-sm:min-h-0 max-sm:grid-cols-[4.5rem_minmax(0,1fr)] max-sm:gap-2 max-sm:p-3"><img alt="Avatar pemain" className="w-24 max-sm:w-[4.5rem]" src="/assets/Shared/Mascots/Mascot_Happy.png" /><div><p className="mb-1 text-sm">PLAYER PROFILE</p><h2 className="mb-3 text-2xl">{user?.name ?? 'Guest Player'}</h2><dl className="grid min-w-0 grid-cols-[auto_minmax(0,1fr)] gap-x-3 gap-y-2 max-sm:gap-x-2 max-sm:text-[.68rem]"><dt>Status</dt><dd>{authenticated ? 'Online' : 'Belum login'}</dd><dt>Email</dt><dd className="truncate">{user?.email ?? '—'}</dd></dl>{authenticated ? <button className={`${dialogButton} mt-4 max-sm:w-full max-sm:text-[.68rem]`} onClick={() => void logout()} type="button">Logout</button> : <button className={`${dialogButton} mt-4 whitespace-normal max-sm:w-full max-sm:px-1 max-sm:text-[.6rem]`} onClick={() => activate('browser')} type="button">Buka Browser untuk Login</button>}</div></div></DesktopWindow>}
+      {onboardingStep !== null && <DesktopOnboarding onNext={advanceOnboarding} playerName={user?.name ?? 'Pemain'} step={onboardingStep} />}
       <DesktopTaskbar items={[]} onBrowser={() => activate('browser')} onInbox={() => activate('inbox')} onProfile={() => activate('profile')} onSelect={() => undefined} pinnedState={pinnedState} />
     </main>
   );

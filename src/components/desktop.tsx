@@ -138,9 +138,9 @@ function pinnedTaskButtonClass(state: TaskbarWindowState | undefined) {
 
 export function DesktopTaskbar({ items, onSelect, onBrowser, onInbox, onProfile, pinnedState }: DesktopTaskbarProps) {
   return (
-    <footer className="absolute inset-x-0 bottom-0 z-[200] flex h-[3.2rem] items-center border-t-[3px] border-[#eef0df] bg-[#bfc2b2] px-2 py-1 text-[#171426] shadow-[inset_0_2px_0_white] [text-shadow:none] max-sm:h-[2.45rem] max-sm:px-1 max-sm:py-0.5">
+    <footer className="desktop-taskbar absolute inset-x-0 bottom-0 z-[200] flex h-[3.2rem] items-center border-t-[3px] border-[#eef0df] bg-[#bfc2b2] px-2 py-1 text-[#171426] shadow-[inset_0_2px_0_white] [text-shadow:none] max-sm:h-[2.45rem] max-sm:px-1 max-sm:py-0.5">
       <nav className="flex min-w-0 flex-1 gap-1.5 overflow-x-auto max-sm:gap-0.5" aria-label="Aplikasi desktop">
-        <button aria-pressed={isTaskbarActive(pinnedState.browser)} className={pinnedTaskButtonClass(pinnedState.browser)} onClick={onBrowser} type="button"><img alt="" aria-hidden="true" className="size-6 object-contain max-sm:size-4" src="/assets/Desktop/IconBrowser.png" /> Browser</button>
+        <button aria-pressed={isTaskbarActive(pinnedState.browser)} className={`${pinnedTaskButtonClass(pinnedState.browser)} desktop-task-browser`} onClick={onBrowser} type="button"><img alt="" aria-hidden="true" className="size-6 object-contain max-sm:size-4" src="/assets/Desktop/IconBrowser.png" /> Browser</button>
         <button aria-pressed={isTaskbarActive(pinnedState.inbox)} className={pinnedTaskButtonClass(pinnedState.inbox)} onClick={onInbox} type="button"><img alt="" aria-hidden="true" className="size-6 object-contain max-sm:size-4" src="/assets/Desktop/IconInbox.png" /> Inbox</button>
         <button aria-pressed={isTaskbarActive(pinnedState.profile)} className={pinnedTaskButtonClass(pinnedState.profile)} onClick={onProfile} type="button"><img alt="" aria-hidden="true" className="size-6 object-contain max-sm:size-4" src="/assets/Desktop/IconProfile.png" /> Profile</button>
         {items.map((item) => (
