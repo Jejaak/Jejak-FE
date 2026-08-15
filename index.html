@@ -7,9 +7,31 @@
     <meta name="description" content="Jejak, permainan literasi keamanan digital." />
     <link rel="icon" type="image/jpeg" href="/assets/Logo_Favicon.jpeg" />
     <title>JEJAK</title>
+    <style>
+      .boot-fallback{display:grid;min-height:100dvh;place-items:center;padding:1rem;background:#1c1742;color:#f7f7ef;font-family:"Courier New",monospace}.boot-fallback section{width:min(100%,30rem);border:4px solid #c4c9b6;background:#151923;padding:1.5rem;box-shadow:inset 3px 3px 0 #fff,inset -3px -3px 0 #58604f}.boot-fallback strong{color:#00d9ed;font-size:1.5rem}.boot-fallback p{margin:1rem 0;line-height:1.5}.boot-fallback button{min-height:44px;border:3px solid #171426;background:#ffe33d;padding:.6rem 1rem;color:#171426;font:inherit;font-weight:700}
+    </style>
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <main class="boot-fallback" role="status">
+        <section>
+          <strong>JEJAK</strong>
+          <p>Memuat aplikasi...</p>
+          <noscript>JavaScript harus diaktifkan untuk menjalankan JEJAK.</noscript>
+        </section>
+      </main>
+    </div>
+    <script>
+      window.setTimeout(function () {
+        var fallback = document.querySelector('.boot-fallback');
+        if (!fallback) return;
+        fallback.querySelector('p').textContent = 'Aplikasi gagal dimuat. Periksa koneksi lalu muat ulang.';
+        var button = document.createElement('button');
+        button.textContent = 'Muat ulang';
+        button.onclick = function () { window.location.reload(); };
+        fallback.querySelector('section').appendChild(button);
+      }, 10000);
+    </script>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
