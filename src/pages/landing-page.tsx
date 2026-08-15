@@ -41,7 +41,7 @@ function rememberDesktopTutorial(): void {
 
 const dialogButton = 'min-h-10 min-w-24 border-2 border-[#171426] bg-[#d8dbcc] px-3 py-2 font-black text-[#171426] shadow-[inset_2px_2px_0_white,inset_-2px_-2px_0_#74776c]';
 
-function AuthBrowser({ mode, authenticated, user, onMode, onSuccess, onLogout }: { mode: AuthMode; authenticated: boolean; user?: { name: string; email: string } | undefined; onMode: (mode: AuthMode) => void; onSuccess: () => void; onLogout: () => void }) {
+function AuthBrowser({ mode, authenticated, user, tutorial = false, onMode, onSuccess, onLogout }: { mode: AuthMode; authenticated: boolean; user?: { name: string; email: string } | undefined; tutorial?: boolean; onMode: (mode: AuthMode) => void; onSuccess: () => void; onLogout: () => void }) {
   const initialAddress = authenticated ? 'https://jejak.local/' : `https://jejak.local/${mode}`;
   const [history, setHistory] = useState([initialAddress]);
   const [historyIndex, setHistoryIndex] = useState(0);
@@ -116,7 +116,7 @@ function AuthBrowser({ mode, authenticated, user, onMode, onSuccess, onLogout }:
   const inputClass = 'min-h-11 border-[3px] border-[#171426] bg-white p-2 shadow-[inset_3px_3px_0_#aaa99d]';
 
   return (
-    <div className="@container h-[calc(100%-2.65rem)] overflow-auto bg-[#d9dccd]">
+    <div className={`@container overflow-auto bg-[#d9dccd] ${tutorial ? 'h-auto max-h-[calc(100svh-5rem)]' : 'h-[calc(100%-2.65rem)]'}`}>
       <div className="flex gap-5 border-b-2 border-[#74776b] px-2 py-1.5" aria-hidden="true"><span>File</span><span>Edit</span><span>View</span><span>Favorites</span><span>Help</span></div>
       <form className="grid grid-cols-[auto_auto_auto_auto_minmax(0,1fr)_auto] items-center gap-1.5 border-b-2 border-[#74776b] p-1.5 @max-[620px]:grid-cols-[auto_auto_auto_minmax(0,1fr)_auto]" onSubmit={(event) => { event.preventDefault(); visit(addressInput); }}>
         <button aria-label="Kembali" className="grid size-8 place-items-center border-2 border-[#222] bg-[#d9dccd] font-black shadow-[inset_2px_2px_0_white,inset_-2px_-2px_0_#717468]" disabled={historyIndex === 0} onClick={() => moveHistory(historyIndex - 1)} type="button">←</button>
@@ -133,7 +133,7 @@ function AuthBrowser({ mode, authenticated, user, onMode, onSuccess, onLogout }:
 
       {page === 'not-found' && <div className="grid min-h-[30rem] place-items-center bg-[#f1f0e4] p-8 text-center"><div><p className="text-6xl" aria-hidden="true">⚠</p><h1 className="text-3xl">Site Not Found</h1><p>Browser tidak dapat menemukan <strong>{currentUrl.hostname}</strong>.</p><p>Periksa alamat yang dimasukkan atau kembali ke halaman utama JEJAK.</p><div className="mt-5 flex justify-center gap-3"><button className={dialogButton} disabled={historyIndex === 0} onClick={() => moveHistory(historyIndex - 1)} type="button">Kembali</button><button className={dialogButton} onClick={() => visit('https://jejak.local/')} type="button">Home</button></div></div></div>}
 
-      {(page === 'login' || page === 'register') && <div className="grid min-h-[30rem] grid-cols-[minmax(12rem,.65fr)_minmax(20rem,1.35fr)] bg-[#f1f0e4] @max-[620px]:grid-cols-1">
+      {(page === 'login' || page === 'register') && <div className={`grid grid-cols-[minmax(12rem,.65fr)_minmax(20rem,1.35fr)] bg-[#f1f0e4] @max-[620px]:grid-cols-1 ${tutorial ? 'min-h-0' : 'min-h-[30rem]'}`}>
         <img alt="Maskot JEJAK" className="w-full self-center p-4 @max-[620px]:hidden" src="/assets/Shared/Mascots/Mascot_Happy.png" />
         <section className="self-center px-[clamp(1rem,4vw,3rem)] py-6 @max-[620px]:px-4 @max-[620px]:py-5">
           <h1 className="mb-1 text-[clamp(1.8rem,4vw,3rem)]">{login ? 'Login Pemain' : 'Buat Akun'}</h1>
@@ -248,6 +248,7 @@ export function LandingPage() {
     };
   }
 
+  const onboardingBrowserOpen = onboardingStep === 2;
   const pinnedState = {
     browser: getPinnedState('browser'),
     inbox: getPinnedState('inbox'),
@@ -273,7 +274,7 @@ export function LandingPage() {
         </DesktopWindow>
       )}
 
-      {windows.browser && <DesktopWindow className="top-[8%] left-[23%] w-[min(72vw,60rem)] max-lg:left-[16%] max-lg:w-[min(80vw,55rem)] max-sm:top-52 max-sm:left-2 max-sm:w-[calc(100vw-1rem)]" constraints={desktopRef} minimized={windows.browser.minimized} onActivate={() => activate('browser')} onClose={() => close('browser')} maximizable maximized={windows.browser.maximized} onMinimize={() => minimize('browser')} onToggleMaximize={() => toggleMaximize('browser')} resizable title="Browser" titleIcon="/assets/Desktop/IconBrowser.png" zIndex={windows.browser.zIndex}><AuthBrowser authenticated={authenticated} mode={authMode} onLogout={() => void logout()} onMode={setAuthMode} onSuccess={authSuccess} user={user ? { name: user.name, email: user.email } : undefined} /></DesktopWindow>}
+      {windows.browser && (onboardingStep === null || onboardingBrowserOpen) && <DesktopWindow className={onboardingBrowserOpen ? "desktop-onboarding-browser top-1/2 right-[11%] left-[11%] h-auto max-h-[calc(100dvh-4.5rem)] w-auto max-sm:top-1/2 max-sm:right-2 max-sm:left-2 max-sm:h-auto max-sm:max-h-[calc(100svh-3.2rem)] max-sm:w-auto" : "top-[8%] left-[23%] w-[min(72vw,60rem)] max-lg:left-[16%] max-lg:w-[min(80vw,55rem)] max-sm:top-52 max-sm:left-2 max-sm:w-[calc(100vw-1rem)]"} constraints={desktopRef} draggable={!onboardingBrowserOpen} minimized={windows.browser.minimized} onActivate={() => { if (onboardingBrowserOpen) advanceOnboarding(); else activate('browser'); }} onClose={() => close('browser')} maximizable={!onboardingBrowserOpen} maximized={onboardingBrowserOpen ? false : windows.browser.maximized} onMinimize={() => minimize('browser')} onToggleMaximize={() => toggleMaximize('browser')} resizable={!onboardingBrowserOpen} showClose={!onboardingBrowserOpen} showMinimize={!onboardingBrowserOpen} title="Browser" titleIcon="/assets/Desktop/IconBrowser.png" zIndex={windows.browser.zIndex}><AuthBrowser authenticated={authenticated} mode={authMode} onLogout={() => void logout()} onMode={setAuthMode} onSuccess={authSuccess} tutorial={onboardingBrowserOpen} user={user ? { name: user.name, email: user.email } : undefined} /></DesktopWindow>}
       {windows.inbox && <DesktopWindow className="top-[27%] left-[36%] w-[min(90vw,28rem)]" constraints={desktopRef} minimized={windows.inbox.minimized} onActivate={() => activate('inbox')} onClose={() => close('inbox')} onMinimize={() => minimize('inbox')} title="Inbox" titleIcon="/assets/Desktop/IconInbox.png" zIndex={windows.inbox.zIndex}><div className="grid min-h-48 place-items-center p-5 text-center"><div><div className="mb-3 text-5xl" aria-hidden="true">✉</div><h2 className="text-2xl">Coming Soon</h2><p className="mb-0">Fitur pesan akan hadir pada pembaruan berikutnya.</p></div></div></DesktopWindow>}
       {windows.profile && <DesktopWindow className="top-[20%] left-[39%] w-[min(90vw,31rem)] max-sm:top-40 max-sm:left-2 max-sm:w-[calc(100vw-1rem)]" constraints={desktopRef} minimized={windows.profile.minimized} onActivate={() => activate('profile')} onClose={() => close('profile')} onMinimize={() => minimize('profile')} title="Profile" titleIcon="/assets/Desktop/IconProfile.png" zIndex={windows.profile.zIndex}><div className="grid min-h-56 grid-cols-[6rem_minmax(0,1fr)] gap-4 p-5 max-sm:min-h-0 max-sm:grid-cols-[4.5rem_minmax(0,1fr)] max-sm:gap-2 max-sm:p-3"><img alt="Avatar pemain" className="w-24 max-sm:w-[4.5rem]" src="/assets/Shared/Mascots/Mascot_Happy.png" /><div><p className="mb-1 text-sm">PLAYER PROFILE</p><h2 className="mb-3 text-2xl">{user?.name ?? 'Guest Player'}</h2><dl className="grid min-w-0 grid-cols-[auto_minmax(0,1fr)] gap-x-3 gap-y-2 max-sm:gap-x-2 max-sm:text-[.68rem]"><dt>Status</dt><dd>{authenticated ? 'Online' : 'Belum login'}</dd><dt>Email</dt><dd className="truncate">{user?.email ?? '—'}</dd></dl>{authenticated ? <button className={`${dialogButton} mt-4 max-sm:w-full max-sm:text-[.68rem]`} onClick={() => void logout()} type="button">Logout</button> : <button className={`${dialogButton} mt-4 whitespace-normal max-sm:w-full max-sm:px-1 max-sm:text-[.6rem]`} onClick={() => activate('browser')} type="button">Buka Browser untuk Login</button>}</div></div></DesktopWindow>}
       {onboardingStep !== null && <DesktopOnboarding onNext={advanceOnboarding} playerName={user?.name ?? 'Pemain'} step={onboardingStep} />}

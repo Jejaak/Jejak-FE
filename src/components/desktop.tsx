@@ -11,6 +11,7 @@ interface DesktopWindowProps {
   overflowVisible?: boolean;
   draggable?: boolean;
   showMinimize?: boolean;
+  showClose?: boolean;
   minimized?: boolean;
   maximized?: boolean;
   maximizable?: boolean;
@@ -23,7 +24,7 @@ interface DesktopWindowProps {
   onToggleMaximize?: () => void;
 }
 
-export function DesktopWindow({ title, titleIcon = '▤', children, className = '', constraints, zIndex, overflowVisible = false, draggable = true, showMinimize = true, minimized = false, maximized = false, maximizable = false, resizable = false, minWidth = 480, minHeight = 360, onActivate, onClose, onMinimize, onToggleMaximize }: DesktopWindowProps) {
+export function DesktopWindow({ title, titleIcon = '▤', children, className = '', constraints, zIndex, overflowVisible = false, draggable = true, showMinimize = true, showClose = true, minimized = false, maximized = false, maximizable = false, resizable = false, minWidth = 480, minHeight = 360, onActivate, onClose, onMinimize, onToggleMaximize }: DesktopWindowProps) {
   const controls = useDragControls();
   const reduceMotion = useReducedMotion();
   const windowRef = useRef<HTMLElement>(null);
@@ -92,7 +93,7 @@ export function DesktopWindow({ title, titleIcon = '▤', children, className = 
         <span className="flex gap-[3px] pr-[3px]" onPointerDown={(event) => event.stopPropagation()}>
           {showMinimize && <button aria-label={`Minimalkan ${title}`} className="grid size-7 place-items-center border-2 border-[#17191a] bg-[#cdd0bf] text-lg font-black leading-none text-[#171426] shadow-[inset_2px_2px_0_white,inset_-2px_-2px_0_#6e7166]" onClick={onMinimize} type="button"><span className="-translate-y-0.5" aria-hidden="true">—</span></button>}
           {maximizable && <button aria-label={maximized ? `Pulihkan ${title}` : `Maksimalkan ${title}`} className="grid size-7 place-items-center border-2 border-[#17191a] bg-[#cdd0bf] text-base font-black leading-none text-[#171426] shadow-[inset_2px_2px_0_white,inset_-2px_-2px_0_#6e7166]" onClick={onToggleMaximize} type="button"><span aria-hidden="true">{maximized ? '❐' : '□'}</span></button>}
-          <button aria-label={`Tutup ${title}`} className="grid size-7 place-items-center border-2 border-[#17191a] bg-[#cdd0bf] text-lg font-black leading-none text-[#171426] shadow-[inset_2px_2px_0_white,inset_-2px_-2px_0_#6e7166]" onClick={onClose} type="button"><span aria-hidden="true">×</span></button>
+          {showClose && <button aria-label={`Tutup ${title}`} className="grid size-7 place-items-center border-2 border-[#17191a] bg-[#cdd0bf] text-lg font-black leading-none text-[#171426] shadow-[inset_2px_2px_0_white,inset_-2px_-2px_0_#6e7166]" onClick={onClose} type="button"><span aria-hidden="true">×</span></button>}
         </span>
       </header>
       {children}
