@@ -133,8 +133,13 @@ export function PhishingGame({ onExit }: { onExit?: () => void }) {
 
   function hydrateSession(loadedSession: PhishingSession) {
     answerKeysRef.current = {};
+    const tutorialKey = `jejak:phishing:tutorial:${loadedSession.publicId}`;
+    if (loadedSession.status === 'ACTIVE' && localStorage.getItem(tutorialKey) !== 'seen') {
+      localStorage.setItem(tutorialKey, 'seen');
+      setTutorialStep(0);
+    }
     latestAnsweredCountRef.current = loadedSession.answeredCount;
-    setFinished(loadedSession.status === 'COMPLETED');
+    setFinished(loadedSession.status === 'COMPLETED' || loadedSession.status === 'LOST');
     setSessionState(loadedSession);
     setQuestions(loadedSession.questions);
     const answeredIds = new Set(loadedSession.answers.map((answer) => answer.questionId));
@@ -144,7 +149,11 @@ export function PhishingGame({ onExit }: { onExit?: () => void }) {
     setAnswers(Object.fromEntries(loadedSession.answers.map((answer) => [answer.questionId, {
       selectedRegions: answer.selectedClueIds,
       result: {
-        type: loadedSession.status === 'COMPLETED' ? 'phishing.session.completed' : 'phishing.answer.saved',
+        type: loadedSession.status === 'LOST'
+          ? 'phishing.session.lost'
+          : loadedSession.status === 'COMPLETED'
+            ? 'phishing.session.completed'
+            : 'phishing.answer.saved',
         sessionId: loadedSession.publicId,
         questionId: answer.questionId,
         selectedClueIds: answer.selectedClueIds,
@@ -238,13 +247,17 @@ export function PhishingGame({ onExit }: { onExit?: () => void }) {
           const snapshot = realtime.data;
           if (snapshot.answeredCount < latestAnsweredCountRef.current) return;
           latestAnsweredCountRef.current = snapshot.answeredCount;
-          setFinished(snapshot.status === 'COMPLETED');
+          setFinished(snapshot.status === 'COMPLETED' || snapshot.status === 'LOST');
           setSessionState(snapshot);
           setQuestions(snapshot.questions);
           setAnswers(Object.fromEntries(snapshot.answers.map((answer) => [answer.questionId, {
             selectedRegions: answer.selectedClueIds,
             result: {
-              type: snapshot.status === 'COMPLETED' ? 'phishing.session.completed' : 'phishing.answer.saved',
+              type: snapshot.status === 'LOST'
+                ? 'phishing.session.lost'
+                : snapshot.status === 'COMPLETED'
+                  ? 'phishing.session.completed'
+                  : 'phishing.answer.saved',
               sessionId: snapshot.publicId,
               questionId: answer.questionId,
               selectedClueIds: answer.selectedClueIds,
@@ -262,6 +275,7 @@ export function PhishingGame({ onExit }: { onExit?: () => void }) {
           return;
         }
         latestAnsweredCountRef.current = Math.max(latestAnsweredCountRef.current, realtime.answeredCount);
+        if (realtime.status !== 'ACTIVE' && pendingAnswersRef.current.size === 0) setFinished(true);
         setAnswers((current) => ({
           ...current,
           [realtime.questionId]: {
@@ -365,7 +379,15 @@ export function PhishingGame({ onExit }: { onExit?: () => void }) {
     try {
       const answerKey = answerKeysRef.current[email.id] ??= `phishing-answer:${crypto.randomUUID()}`;
       const result = await submitAnswerRealtime(answerKey, email.id, selectedRegions, selectedRegions.length > 0);
+      latestAnsweredCountRef.current = Math.max(latestAnsweredCountRef.current, result.answeredCount);
       setAnswers((current) => ({ ...current, [email.id]: { result, selectedRegions } }));
+      setSessionState((current) => current ? {
+        ...current,
+        status: result.status,
+        answeredCount: result.answeredCount,
+        score: result.score,
+        mistakes: result.mistakes,
+      } : current);
       setFeedbackEmailId(email.id);
       setMarking(false);
     } catch (error) {
@@ -396,7 +418,7 @@ export function PhishingGame({ onExit }: { onExit?: () => void }) {
   function next() {
     if (!answered) return;
     setFeedbackEmailId(null);
-    if (answeredCount === maxScore) {
+    if (sessionState?.status === 'COMPLETED' || sessionState?.status === 'LOST') {
       setFinished(true);
       return;
     }
@@ -429,7 +451,8 @@ export function PhishingGame({ onExit }: { onExit?: () => void }) {
   }
 
   if (finished) {
-    return <main className="game-stage centered"><GameResult detail={`${score} dari ${maxScore} email dinilai dengan tepat.`} onExit={onExit ?? (() => navigate('/'))} onRetry={reset} title="Kotak masuk aman" /></main>;
+    const lost = sessionState?.status === 'LOST';
+    return <main className="game-stage centered"><GameResult detail={lost ? `Tiga jawaban salah. Kamu menyelesaikan ${answeredCount} pesan dengan ${score} jawaban benar.` : `${score} dari ${maxScore} email dinilai dengan tepat.`} onExit={onExit ?? (() => navigate('/'))} onRetry={reset} title={lost ? 'HP habis' : 'Kotak masuk aman'} /></main>;
   }
 
   return (
@@ -523,7 +546,7 @@ export function PhishingGame({ onExit }: { onExit?: () => void }) {
               <h2 id="phishing-feedback-title">{popupFeedback.correct ? 'Benar!' : 'Belum tepat!'}</h2>
               <p>{popupFeedback.explanation}</p>
               {popupFeedback.clues.length > 0 && <ul>{popupFeedback.clues.map((clue) => <li key={clue.id}><strong>{clue.label}:</strong> {clue.text}</li>)}</ul>}
-              <button onClick={next} ref={feedbackButtonRef} type="button">{answeredCount === maxScore ? 'Lihat hasil' : 'Pesan berikutnya'}</button>
+              <button onClick={next} ref={feedbackButtonRef} type="button">{sessionState?.status !== 'ACTIVE' ? 'Lihat hasil' : 'Pesan berikutnya'}</button>
             </div>
           </section>
         </div>

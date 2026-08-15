@@ -35,7 +35,7 @@ export interface PhishingStoredAnswer {
 export interface PhishingSession {
   id: string;
   publicId: string;
-  status: 'ACTIVE' | 'COMPLETED' | 'ABANDONED';
+  status: 'ACTIVE' | 'COMPLETED' | 'LOST' | 'ABANDONED';
   startedAt: string;
   completedAt: string | null;
   answeredCount: number;
@@ -46,7 +46,7 @@ export interface PhishingSession {
 }
 
 export interface PhishingAnswerResult {
-  type: 'phishing.answer.saved' | 'phishing.session.completed';
+  type: 'phishing.answer.saved' | 'phishing.session.completed' | 'phishing.session.lost';
   sessionId: string;
   questionId: string;
   selectedClueIds: PhishingRegionId[];
@@ -55,7 +55,7 @@ export interface PhishingAnswerResult {
   answeredCount: number;
   score: number;
   mistakes: number;
-  status: 'ACTIVE' | 'COMPLETED' | 'ABANDONED';
+  status: 'ACTIVE' | 'COMPLETED' | 'LOST' | 'ABANDONED';
   suspicious: boolean;
   explanation: string;
   clues: PhishingClue[];
