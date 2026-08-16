@@ -71,7 +71,7 @@ export function DesktopWindow({ title, titleIcon = '▤', children, className = 
   return (
     <motion.section
       animate={{ opacity: 1, scale: 1 }}
-      className={`absolute touch-none border-[3px] border-[#151719] bg-[#c3c6b5] text-[#171426] shadow-[inset_2px_2px_0_#f5f7e8,inset_-2px_-2px_0_#686b60,9px_9px_0_rgb(20_15_51_/_38%)] [text-shadow:none] ${overflowVisible ? 'overflow-visible' : 'overflow-hidden'} ${maximized ? '!top-1 !left-1 !h-[calc(100dvh-3.7rem)] !w-[calc(100vw-.5rem)] !translate-x-0 !translate-y-0' : className}`}
+      className={`desktop-window absolute touch-none border-[3px] border-[#151719] bg-[#c3c6b5] text-[#171426] shadow-[inset_2px_2px_0_#f5f7e8,inset_-2px_-2px_0_#686b60,9px_9px_0_rgb(20_15_51_/_38%)] [text-shadow:none] ${overflowVisible ? 'overflow-visible' : 'overflow-hidden'} ${maximized ? 'desktop-window-maximized !top-1 !left-1 !h-[calc(100dvh-3.7rem)] !w-[calc(100vw-.5rem)] !translate-x-0 !translate-y-0' : className}`}
       drag={draggable && !maximized}
       dragConstraints={constraints}
       dragControls={controls}
@@ -97,7 +97,7 @@ export function DesktopWindow({ title, titleIcon = '▤', children, className = 
         </span>
       </header>
       {children}
-      {resizable && !maximized && <button aria-label={`Ubah ukuran ${title}`} className="absolute right-0 bottom-0 z-50 size-5 cursor-nwse-resize border-0 bg-[linear-gradient(135deg,transparent_0_45%,#666_45%_55%,transparent_55%_65%,#222_65%_75%,transparent_75%)] p-0" onPointerDown={beginResize} type="button" />}
+      {resizable && !maximized && <button aria-label={`Ubah ukuran ${title}`} className="desktop-window-resize absolute right-0 bottom-0 z-50 size-5 cursor-nwse-resize border-0 bg-[linear-gradient(135deg,transparent_0_45%,#666_45%_55%,transparent_55%_65%,#222_65%_75%,transparent_75%)] p-0" onPointerDown={beginResize} type="button" />}
     </motion.section>
   );
 }

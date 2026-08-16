@@ -429,6 +429,16 @@ button:disabled { cursor: not-allowed; filter: grayscale(.65); opacity: .62; }
 }
 
 @media (max-width: 44rem) {
+  .desktop-scanlines { width: 100%; min-width: 0; min-height: 100svh; overflow-x: clip; }
+  .desktop-scanlines > .desktop-window { right: max(.75rem, env(safe-area-inset-right)) !important; left: max(.75rem, env(safe-area-inset-left)) !important; width: auto !important; max-width: none !important; touch-action: auto !important; }
+  .desktop-scanlines > .desktop-browser-window:not(.desktop-onboarding-browser) { top: max(7rem, env(safe-area-inset-top)) !important; bottom: auto !important; height: min(34rem, calc(100svh - 10rem - env(safe-area-inset-bottom))) !important; max-height: calc(100svh - 10rem - env(safe-area-inset-bottom)) !important; overflow: hidden; }
+  .desktop-scanlines > .desktop-onboarding-browser { top: 50% !important; transform: translateY(-50%) !important; }
+  .desktop-window-resize { display: none; }
+  .desktop-welcome-mascot { right: 0 !important; }
+  .desktop-game-shortcuts { width: min(100%, 14rem) !important; max-width: calc(100% - 1.5rem - env(safe-area-inset-left) - env(safe-area-inset-right)); grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .desktop-game-shortcut { width: 100% !important; min-width: 0; }
+  .desktop-taskbar { height: calc(2.45rem + env(safe-area-inset-bottom)) !important; padding-right: calc(.25rem + env(safe-area-inset-right)) !important; padding-bottom: calc(.125rem + env(safe-area-inset-bottom)) !important; padding-left: calc(.25rem + env(safe-area-inset-left)) !important; }
+  .desktop-window > div { max-width: 100%; }
   .site-nav, .game-header { align-items: flex-start; }
   .site-nav { min-height: 4.25rem; padding: .8rem 1rem; }
   .nav-actions { gap: .65rem; }
