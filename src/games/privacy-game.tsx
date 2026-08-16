@@ -289,8 +289,8 @@ export function PrivacyGame({ onExit }: { onExit?: () => void }) {
   return (
     <main className={`privacy-game-screen ${tutorial ? `privacy-tutorial-focus-${tutorial.focus}` : ''}`} tabIndex={-1}>
       <header className="privacy-hud">
-        <div className="privacy-hud-left"><Lives compact current={Math.max(0, 3 - gameSession.mistakes)} /><span aria-label={`Koneksi realtime ${socketState}`} className="session-status-dot" data-state={socketState} /></div>
-        <div className="privacy-progress"><span>{scenarioIndex + 1}/{gameSession.questionCount} Pertanyaan</span><button aria-label="Buka tutorial" onClick={() => setTutorialStep(0)} type="button"><img alt="" aria-hidden="true" src="/assets/Shared/Game/ButtonInfo.png" /></button><button aria-label="Keluar dari permainan" onClick={() => setExitConfirmOpen(true)} type="button"><img alt="" aria-hidden="true" src="/assets/Shared/Game/ButtonClose.png" /></button></div>
+        <div className="privacy-hud-left"><Lives compact current={Math.max(0, 3 - gameSession.mistakes)} /></div>
+        <div className="privacy-progress"><span aria-label={`Koneksi realtime ${socketState}`} className="session-status-dot" data-state={socketState} /><span>{scenarioIndex + 1}/{gameSession.questionCount} Pertanyaan</span><button aria-label="Buka tutorial" onClick={() => setTutorialStep(0)} type="button"><img alt="" aria-hidden="true" src="/assets/Shared/Game/ButtonInfo.png" /></button><button aria-label="Keluar dari permainan" onClick={() => setExitConfirmOpen(true)} type="button"><img alt="" aria-hidden="true" src="/assets/Shared/Game/ButtonClose.png" /></button></div>
       </header>
 
       <section className="privacy-character-zone" aria-labelledby="character-name">
