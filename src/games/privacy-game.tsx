@@ -12,6 +12,8 @@ interface TutorialSlide {
   content: ReactNode;
 }
 
+const privacyAbandonTimers = new Map<string, number>();
+
 const tutorialSlides: TutorialSlide[] = [
   { mascot: '/assets/Shared/Mascots/Mascot_Shocked.png', focus: 'intro', content: <>Di internet, <strong className="tutorial-pink">tidak semua informasi aman dibagikan!</strong></> },
   { mascot: '/assets/Shared/Mascots/Mascot_Neutral.png', focus: 'character', content: <>Lihat dulu, <strong className="tutorial-cyan">siapa yang meminta?</strong></> },
@@ -28,6 +30,7 @@ export function PrivacyGame({ onExit }: { onExit?: () => void }) {
   const socketRef = useRef<WebSocket | null>(null);
   const pendingSocketAnswersRef = useRef(new Map<string, { resolve: (result: PrivacyAnswerResult) => void; reject: () => void; timer: number }>());
   const reconnectTimerRef = useRef<number | null>(null);
+  const intentionalExitRef = useRef(false);
   const [gameSession, setGameSession] = useState<PrivacySession | null>(null);
   const [scenarioIndex, setScenarioIndex] = useState(0);
   const [answerResult, setAnswerResult] = useState<PrivacyAnswerResult | null>(null);
@@ -107,6 +110,30 @@ export function PrivacyGame({ onExit }: { onExit?: () => void }) {
       active = false;
     };
   }, [navigate, publicId]);
+
+  useEffect(() => {
+    const sessionId = gameSession?.id;
+    if (!sessionId || gameSession.status !== 'ACTIVE') return;
+    const activeSessionId = sessionId;
+    const pendingTimer = privacyAbandonTimers.get(activeSessionId);
+    if (pendingTimer !== undefined) {
+      window.clearTimeout(pendingTimer);
+      privacyAbandonTimers.delete(activeSessionId);
+    }
+    function abandonOnPageHide() {
+      if (!intentionalExitRef.current) void abandonPrivacySession(activeSessionId).catch(() => undefined);
+    }
+    window.addEventListener('pagehide', abandonOnPageHide);
+    return () => {
+      window.removeEventListener('pagehide', abandonOnPageHide);
+      if (intentionalExitRef.current) return;
+      const timer = window.setTimeout(() => {
+        privacyAbandonTimers.delete(activeSessionId);
+        void abandonPrivacySession(activeSessionId).catch(() => undefined);
+      }, 0);
+      privacyAbandonTimers.set(activeSessionId, timer);
+    };
+  }, [gameSession?.id, gameSession?.status]);
 
   useEffect(() => {
     const sessionPublicId = gameSession?.publicId;
@@ -242,6 +269,7 @@ export function PrivacyGame({ onExit }: { onExit?: () => void }) {
   }
 
   function exitGame() {
+    intentionalExitRef.current = true;
     const exit = onExit ?? (() => navigate('/'));
     if (gameSession?.status === 'ACTIVE') {
       void abandonPrivacySession(gameSession.id).catch(() => undefined);
@@ -249,8 +277,8 @@ export function PrivacyGame({ onExit }: { onExit?: () => void }) {
     exit();
   }
 
-  if (loading) return <GameLoadingWindow message={publicId ? 'Memuat sesi permainan…' : 'Membuat sesi permainan…'} sessionId={publicId} title="PRIVASI.EXE" />;
-  if (!gameSession || !question) return <GameLoadingWindow error={error || 'Sesi Privasi tidak tersedia.'} onBack={() => navigate('/')} onRetry={() => void loadSession()} sessionId={publicId} title="PRIVASI.EXE" />;
+  if (loading) return <GameLoadingWindow message={publicId ? 'Memuat sesi permainan…' : 'Membuat sesi permainan…'} title="PRIVASI.EXE" />;
+  if (!gameSession || !question) return <GameLoadingWindow error={error || 'Sesi Privasi tidak tersedia.'} onBack={() => navigate('/')} onRetry={() => void loadSession()} title="PRIVASI.EXE" />;
   if (lost && !answerResult) {
     return <main className="game-stage centered"><GameResult detail={`Tiga jawaban keliru. Skor sesi: ${gameSession.score}/${gameSession.questionCount}.`} onExit={onExit ?? (() => navigate('/'))} onRetry={() => navigate('/game/privacy', { replace: true })} title="Nyawa habis" /></main>;
   }
@@ -261,7 +289,7 @@ export function PrivacyGame({ onExit }: { onExit?: () => void }) {
   return (
     <main className={`privacy-game-screen ${tutorial ? `privacy-tutorial-focus-${tutorial.focus}` : ''}`} tabIndex={-1}>
       <header className="privacy-hud">
-        <div className="privacy-hud-left"><Lives compact current={Math.max(0, 3 - gameSession.mistakes)} /><span className="privacy-session-id" data-state={socketState}>ID: {gameSession.publicId} <i aria-label={`Realtime ${socketState}`} /></span></div>
+        <div className="privacy-hud-left"><Lives compact current={Math.max(0, 3 - gameSession.mistakes)} /><span aria-label={`Koneksi realtime ${socketState}`} className="session-status-dot" data-state={socketState} /></div>
         <div className="privacy-progress"><span>{scenarioIndex + 1}/{gameSession.questionCount} Pertanyaan</span><button aria-label="Buka tutorial" onClick={() => setTutorialStep(0)} type="button"><img alt="" aria-hidden="true" src="/assets/Shared/Game/ButtonInfo.png" /></button><button aria-label="Keluar dari permainan" onClick={() => setExitConfirmOpen(true)} type="button"><img alt="" aria-hidden="true" src="/assets/Shared/Game/ButtonClose.png" /></button></div>
       </header>
 
