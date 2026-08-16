@@ -130,6 +130,9 @@ button:disabled { cursor: not-allowed; filter: grayscale(.65); opacity: .62; }
 .lives { display: flex; align-items: center; gap: .7rem; color: white; font-weight: 900; }
 .life-icons { display: flex; gap: .2rem; }
 .life-icons img { width: 1.9rem; height: 1.9rem; object-fit: contain; }
+.session-status-dot { display: inline-block; width: .65rem; height: .65rem; border: 2px solid #17201a; background: #ffd83d; box-shadow: 1px 1px 0 rgb(255 255 255 / 55%); }
+.session-status-dot[data-state="connected"] { background: #62d889; }
+.session-status-dot[data-state="offline"] { background: #e95b74; }
 .tutorial-backdrop { position: fixed; z-index: 100; inset: 0; display: grid; place-items: center; padding: 1rem; background: rgb(9 7 25 / 78%); }
 .tutorial-panel { display: grid; width: min(100%, 48rem); grid-template-columns: minmax(8rem, 14rem) 1fr; align-items: end; padding: 1.2rem; color: var(--color-ink); }
 .tutorial-panel .eyebrow { color: var(--color-purple); }
@@ -196,7 +199,7 @@ button:disabled { cursor: not-allowed; filter: grayscale(.65); opacity: .62; }
 .privacy-tutorial-box h2 { margin-bottom: .45rem; color: white; font-size: clamp(1.05rem, 2vw, 1.45rem); line-height: 1.3; }
 .privacy-tutorial-box span { color: #c7c7c7; font-size: .7rem; }
 .tutorial-layout-dialogue, .tutorial-layout-decision, .tutorial-layout-choices, .tutorial-layout-reject { padding-bottom: max(15rem, 26dvh); }
-.tutorial-layout-dialogue .privacy-tutorial, .tutorial-layout-decision .privacy-tutorial, .tutorial-layout-choices .privacy-tutorial, .tutorial-layout-reject .privacy-tutorial { width: min(100%, 44rem); }
+.tutorial-layout-dialogue .privacy-tutorial, .tutorial-layout-decision .privacy-tutorial, .tutorial-layout-choices .privacy-tutorial, .tutorial-layout-reject .privacy-tutorial { width: min(100%, 48rem); }
 .privacy-answer-backdrop { position: fixed; z-index: 105; inset: 0; display: grid; place-items: center; padding: 1rem; background: rgb(4 4 12 / 78%); }
 .privacy-answer-popup { position: relative; display: grid; width: min(100%, 46rem); grid-template-columns: 12rem minmax(0, 1fr); align-items: center; border: 4px solid #c4c9b6; background: #151923; color: white; box-shadow: inset 3px 3px 0 white, inset -3px -3px 0 #58604f; }
 .privacy-answer-popup::before { position: absolute; top: -2rem; left: 1rem; color: #aaa; content: "Feedback"; }
@@ -222,16 +225,13 @@ button:disabled { cursor: not-allowed; filter: grayscale(.65); opacity: .62; }
 .phishing-screen::after { position: absolute; z-index: 80; inset: 0; pointer-events: none; background: repeating-linear-gradient(0deg, rgb(0 0 0 / 10%) 0 1px, transparent 1px 4px); content: ""; }
 .phishing-hud { position: relative; z-index: 3; display: flex; align-items: center; justify-content: space-between; min-height: 6rem; padding: .8rem clamp(1rem, 3vw, 2.5rem); }
 .phishing-progress { display: flex; align-items: center; gap: .85rem; font-weight: 900; text-shadow: 2px 2px 0 #000; }
-.phishing-session-id { max-width: 17rem; overflow: hidden; color: #d7d9e7; font-size: .68rem; text-overflow: ellipsis; white-space: nowrap; }
-.phishing-session-id::before { display: inline-block; width: .55rem; height: .55rem; margin-right: .35rem; border: 2px solid #17201a; background: #ffd83d; content: ""; }
-.phishing-session-id[data-state="connected"]::before { background: #62d889; }
-.phishing-session-id[data-state="offline"]::before { background: #e95b74; }
 .phishing-progress button { width: 3.4rem; height: 3.4rem; border: 0; background: transparent; padding: 0; }
 .phishing-progress button img { width: 100%; height: 100%; object-fit: contain; }
 .phishing-mail-window { position: relative; z-index: 2; display: grid; width: calc(100% - clamp(1rem, 2vw, 2rem)); height: calc(100dvh - 7rem); min-height: 34rem; grid-template-columns: minmax(14rem, 19rem) minmax(0, 1fr); margin: 0 auto; overflow: hidden; border: 5px solid #a9aabc; background: #d8d8dc; color: var(--color-ink); box-shadow: inset 4px 4px 0 #fff, inset -4px -4px 0 #656575, 9px 9px 0 rgb(5 4 17 / 55%); }
 .phishing-inbox { min-width: 0; overflow: hidden; border-right: 4px solid #777783; background: #c9c9cf; }
 .phishing-inbox-title { display: grid; min-height: 2.8rem; grid-template-columns: auto 1fr auto; align-items: center; gap: .6rem; border-bottom: 4px solid #8e8e9d; background: linear-gradient(90deg, #4d4e76, #77789d); padding: .4rem .7rem; color: white; }
 .phishing-inbox-title h1 { margin: 0; font-size: 1.05rem; }
+.phishing-inbox-title button, .phishing-inbox-trigger, .phishing-inbox-scrim { display: none; }
 .phishing-message-list { height: calc(100% - 2.8rem); overflow-y: auto; }
 .phishing-message-item { display: grid; width: 100%; min-height: 5rem; grid-template-columns: 2.8rem minmax(0, 1fr) auto; align-items: center; gap: .6rem; border: 0; border-bottom: 2px solid #8d8d94; background: #ececee; padding: .55rem; color: #30303b; text-align: left; }
 .phishing-message-item:hover { background: #f7f6ee; }
@@ -265,15 +265,16 @@ button:disabled { cursor: not-allowed; filter: grayscale(.65); opacity: .62; }
 .phishing-attachment { display: flex; width: fit-content; max-width: 100%; align-items: center; gap: .65rem; margin: .7rem .55rem 0; border: 0; background: #e8e8e8; padding: .45rem .75rem; }
 .phishing-attachment img { width: 2.2rem; height: 2.6rem; object-fit: contain; }
 .phishing-attachment span { overflow-wrap: anywhere; }
-.phishing-actions { display: flex; justify-content: flex-end; gap: 1rem; margin: 1rem 1.2rem 1.2rem; }
-.phishing-asset-button { display: inline-flex; min-width: 9rem; min-height: 3rem; align-items: center; justify-content: center; gap: .55rem; border: 3px solid #3a3037; padding: .45rem 1rem; color: #402632; font-weight: 900; box-shadow: inset 3px 3px 0 rgb(255 255 255 / 75%), inset -3px -3px 0 rgb(0 0 0 / 24%), 3px 3px 0 #3a3037; }
+.phishing-action-footer { margin-top: 1rem; }
+.phishing-actions { display: flex; justify-content: flex-end; gap: 1rem; margin: 0 1.2rem; }
+.phishing-asset-button { display: inline-flex; min-width: 9rem; min-height: 3rem; align-items: center; justify-content: center; gap: .55rem; border: 3px solid #3a3037; padding: .45rem 1rem; color: #402632; font-weight: 900; white-space: nowrap; box-shadow: inset 3px 3px 0 rgb(255 255 255 / 75%), inset -3px -3px 0 rgb(0 0 0 / 24%), 3px 3px 0 #3a3037; }
 .phishing-asset-button img { width: 1.75rem; height: 1.75rem; object-fit: contain; }
 .mark-email-button { background: #dfb0b5; }
 .mark-email-button[aria-pressed="true"] { outline: 4px solid var(--color-yellow); background: #f2c3cc; }
 .save-email-button { background: #a9d1dc; color: #334665; }
-.phishing-helper, .phishing-save-error { margin: -.4rem 1.2rem 1rem; font-size: .78rem; }
-.phishing-helper { color: #4d4d65; }
-.phishing-save-error { color: #a00022; font-weight: 900; }
+.phishing-helper { margin: .65rem 1.2rem 1rem; color: #4d4d65; font-size: .82rem; line-height: 1.45; white-space: normal; overflow-wrap: anywhere; }
+.phishing-save-error { margin: .5rem 1.2rem 1rem; color: #a00022; font-size: .78rem; font-weight: 900; }
+.phishing-marking-mode .email-region:not(:disabled) { cursor: url('/assets/Game3/search-cursor.png') 12 12, crosshair; }
 .phishing-exit-backdrop, .phishing-feedback-backdrop { position: fixed; z-index: 95; inset: 0; display: grid; overflow-y: auto; place-items: center; padding: max(1rem, env(safe-area-inset-top)) max(1rem, env(safe-area-inset-right)) max(1rem, env(safe-area-inset-bottom)) max(1rem, env(safe-area-inset-left)); background: rgb(4 4 12 / 78%); overscroll-behavior: contain; }
 .phishing-exit-dialog { display: grid; width: min(100%, 38rem); grid-template-columns: 10rem minmax(0, 1fr); align-items: center; border: 4px solid #c4c9b6; background: #deddd2; padding: 1rem; color: #171426; box-shadow: inset 3px 3px 0 white, inset -3px -3px 0 #74766c, 8px 8px 0 rgb(0 0 0 / 45%); }
 .phishing-exit-dialog > img { width: 100%; }
@@ -305,17 +306,18 @@ button:disabled { cursor: not-allowed; filter: grayscale(.65); opacity: .62; }
 .phishing-tutorial-step-6 .phishing-action { color: white; background: #303035; outline: 4px solid var(--color-cyan); }
 .phishing-tutorial-step-6 .mark-email-button, .phishing-tutorial-step-7 .save-email-button { outline: 4px solid var(--color-cyan); }
 .phishing-tutorial-backdrop { position: fixed; z-index: 45; inset: 0; display: block; width: 100%; height: 100%; border: 0; background: transparent; padding: 0; color: white; text-align: left; }
-.phishing-tutorial-card { position: absolute; z-index: 50; display: grid; width: min(92%, 46rem); grid-template-columns: minmax(8rem, 12rem) minmax(0, 1fr); align-items: end; }
+.phishing-tutorial-card { position: absolute; z-index: 50; display: grid; width: min(calc(100vw - 2rem), 48rem); grid-template-columns: minmax(8rem, 11rem) minmax(0, 1fr); align-items: end; }
 .phishing-tutorial-card > img { position: relative; z-index: 2; width: 120%; max-height: 14rem; object-fit: contain; object-position: bottom; transform: translateX(.5rem); }
 .phishing-tutorial-window { min-height: 7.4rem; margin: 0 0 .7rem -1rem; border: 4px solid #bfc4b4; background: #151923; color: white; box-shadow: inset 3px 3px 0 white, inset -3px -3px 0 #51584b, 6px 6px 0 rgb(0 0 0 / 45%); }
 .phishing-tutorial-window-bar { display: block; height: 1.35rem; border-bottom: 3px solid #9fa594; background: #c1c7b7; padding-right: .25rem; color: #33392f; font-size: .7rem; line-height: 1rem; text-align: right; }
 .phishing-tutorial-window h2 { margin: 0; padding: 1rem 1.2rem; color: white; font-size: clamp(1.2rem, 2.5vw, 2rem); line-height: 1.25; }
 .phishing-tutorial-layout-1 .phishing-tutorial-card { right: 4%; bottom: 2%; }
-.phishing-tutorial-layout-2 .phishing-tutorial-card, .phishing-tutorial-layout-3 .phishing-tutorial-card { right: 5%; bottom: 2%; width: min(92%, 40rem); }
-.phishing-tutorial-layout-4 .phishing-tutorial-card, .phishing-tutorial-layout-5 .phishing-tutorial-card, .phishing-tutorial-layout-6 .phishing-tutorial-card, .phishing-tutorial-layout-7 .phishing-tutorial-card { top: 7%; left: 4%; width: min(74%, 43rem); grid-template-columns: minmax(0, 1fr) minmax(7rem, 11rem); }
+.phishing-tutorial-layout-2 .phishing-tutorial-card, .phishing-tutorial-layout-3 .phishing-tutorial-card { right: 4%; bottom: 2%; }
+.phishing-tutorial-layout-4 .phishing-tutorial-card, .phishing-tutorial-layout-5 .phishing-tutorial-card, .phishing-tutorial-layout-6 .phishing-tutorial-card, .phishing-tutorial-layout-7 .phishing-tutorial-card { top: 7%; left: 4%; grid-template-columns: minmax(0, 1fr) minmax(7rem, 10rem); }
 .phishing-tutorial-layout-4 .phishing-tutorial-card > img, .phishing-tutorial-layout-5 .phishing-tutorial-card > img, .phishing-tutorial-layout-6 .phishing-tutorial-card > img, .phishing-tutorial-layout-7 .phishing-tutorial-card > img { grid-column: 2; grid-row: 1; width: 115%; transform: translate(-.4rem, .8rem); }
 .phishing-tutorial-layout-4 .phishing-tutorial-window, .phishing-tutorial-layout-5 .phishing-tutorial-window, .phishing-tutorial-layout-6 .phishing-tutorial-window, .phishing-tutorial-layout-7 .phishing-tutorial-window { grid-column: 1; grid-row: 1; margin: 0 -1rem .7rem 0; }
-.phishing-tutorial-search { position: absolute; z-index: 50; right: 31%; bottom: 21%; width: 3.8rem; filter: drop-shadow(3px 3px 0 rgb(0 0 0 / 45%)); }
+.phishing-action-content { display: inline; }
+.phishing-tutorial-search { position: relative; z-index: 35; display: inline-block; width: 3.4rem; height: 3.4rem; margin: -1.2rem 0 -1.2rem .35rem; object-fit: contain; vertical-align: middle; pointer-events: none; filter: drop-shadow(3px 3px 0 rgb(0 0 0 / 45%)); }
 .phishing-tutorial-next { position: absolute; right: 1rem; bottom: .5rem; color: #bfc1c7; font-size: .68rem; text-shadow: 2px 2px 0 #000; }
 
 .downloads-stage, .virus-game-screen { background: #eceaf8 url('/assets/Game3/Background.png') center / 100% 100% no-repeat; }
@@ -323,7 +325,6 @@ button:disabled { cursor: not-allowed; filter: grayscale(.65); opacity: .62; }
 .virus-game-screen::after { position: absolute; z-index: 50; inset: 0; pointer-events: none; background: repeating-linear-gradient(0deg, rgb(70 54 114 / 4%) 0 1px, transparent 1px 4px); content: ""; }
 .virus-hud { position: relative; z-index: 10; display: flex; align-items: flex-start; justify-content: space-between; padding: clamp(1rem, 2.4vw, 1.8rem); }
 .virus-hud-left { display: grid; gap: .3rem; }
-.virus-session-id { color: #3f3c59; font-size: .58rem; font-weight: 900; text-shadow: 1px 1px 0 white; }
 .virus-actions { display: flex; align-items: center; gap: .7rem; font-weight: 900; }
 .virus-actions > span { border: 3px solid #2a2940; background: #d7d6e2; padding: .55rem .8rem; box-shadow: inset 2px 2px 0 white, inset -2px -2px 0 #777688; }
 .virus-actions button { width: 3.4rem; height: 3.4rem; border: 0; background: transparent; padding: 0; }
@@ -360,7 +361,7 @@ button:disabled { cursor: not-allowed; filter: grayscale(.65); opacity: .62; }
 .virus-result-secondary { background: #f5f2e8; }
 .virus-tutorial-open .virus-download-area, .virus-tutorial-open .virus-target-mascot, .virus-tutorial-open .virus-progress-window, .virus-tutorial-open .virus-error { visibility: hidden; }
 .virus-tutorial-backdrop { position: fixed; z-index: 100; inset: 0; display: block; width: 100%; height: 100%; border: 0; background: rgb(6 7 13 / 76%); padding: 0; color: white; text-align: left; }
-.virus-tutorial-panel { position: absolute; right: 50%; bottom: 2.5%; display: grid; width: min(92%, 44rem); grid-template-columns: 11rem minmax(0, 1fr); align-items: end; transform: translateX(50%); }
+.virus-tutorial-panel { position: absolute; right: 50%; bottom: 2.5%; display: grid; width: min(calc(100vw - 2rem), 48rem); grid-template-columns: 11rem minmax(0, 1fr); align-items: end; transform: translateX(50%); }
 .virus-tutorial-mascot { position: relative; z-index: 2; width: 12rem; max-height: 13rem; object-fit: contain; object-position: bottom; transform: translate(.7rem, .8rem); }
 .virus-tutorial-copy { position: relative; min-height: 8rem; margin: 0 0 .7rem -1rem; border: 4px solid #bfc4b4; background: #151923; padding: 2rem 1.25rem 1.4rem; color: white; box-shadow: inset 3px 3px 0 white, inset -3px -3px 0 #51584b, 6px 6px 0 rgb(0 0 0 / 45%); }
 .virus-tutorial-window-bar { position: absolute; top: 0; right: 0; left: 0; height: 1.35rem; border-bottom: 3px solid #9fa594; background: #c1c7b7; padding-right: .25rem; color: #33392f; font-size: .7rem; line-height: 1rem; text-align: right; }
@@ -384,7 +385,6 @@ button:disabled { cursor: not-allowed; filter: grayscale(.65); opacity: .62; }
 .game-loading-content > img { width: 9rem; max-height: 11rem; object-fit: contain; }
 .game-loading-content h1 { margin-bottom: .4rem; font-size: clamp(1.4rem, 4vw, 2rem); }
 .game-loading-content p { margin-bottom: .7rem; line-height: 1.4; }
-.game-loading-session { overflow-wrap: anywhere; color: #4c4a64; font-size: .72rem; font-weight: 900; }
 .game-loading-track { height: 1.7rem; overflow: hidden; border: 3px inset #f2f2e9; background: #a9aa9f; padding: 2px; }
 .game-loading-track span { display: block; width: 42%; height: 100%; background: repeating-linear-gradient(90deg, #353875 0 1rem, #676bb3 1rem 2rem); animation: gameLoading 1.1s steps(6) infinite; }
 .game-loading-actions { display: flex; flex-wrap: wrap; gap: .6rem; }
@@ -444,7 +444,6 @@ button:disabled { cursor: not-allowed; filter: grayscale(.65); opacity: .62; }
   .privacy-hud .lives-compact > span { font-size: .46rem; }
   .privacy-hud .lives-compact .life-icons { gap: .03rem; }
   .privacy-hud .lives-compact .life-icons img { width: 1.2rem; height: 1.2rem; }
-  .privacy-session-id { display: block; max-width: 8.2rem; overflow: hidden; color: white; font-size: .42rem; font-weight: 900; text-overflow: ellipsis; text-shadow: 1px 1px 0 #171426; white-space: nowrap; }
   .privacy-progress { gap: .3rem; }
   .privacy-progress > span { font-size: .64rem; text-shadow: 1px 1px 0 #171426; }
   .privacy-progress button { width: 2.75rem; height: 2.75rem; min-width: 44px; min-height: 44px; }
@@ -466,9 +465,9 @@ button:disabled { cursor: not-allowed; filter: grayscale(.65); opacity: .62; }
   .privacy-toast-content p { font-size: .72rem; }
   .privacy-tutorial-backdrop { overflow-y: auto; place-items: end center; padding: max(.5rem, env(safe-area-inset-top)) max(.5rem, env(safe-area-inset-right)) max(.5rem, env(safe-area-inset-bottom)) max(.5rem, env(safe-area-inset-left)); }
   .tutorial-layout-dialogue, .tutorial-layout-decision, .tutorial-layout-choices, .tutorial-layout-reject { padding-bottom: 15.5rem; }
-  .tutorial-layout-dialogue .privacy-tutorial, .tutorial-layout-decision .privacy-tutorial, .tutorial-layout-choices .privacy-tutorial, .tutorial-layout-reject .privacy-tutorial { width: 100%; grid-template-columns: 5.5rem minmax(0, 1fr); }
-  .privacy-tutorial { width: 100%; grid-template-columns: 6rem minmax(0, 1fr); }
-  .privacy-tutorial > img { max-height: 7rem; }
+  .tutorial-layout-dialogue .privacy-tutorial, .tutorial-layout-decision .privacy-tutorial, .tutorial-layout-choices .privacy-tutorial, .tutorial-layout-reject .privacy-tutorial { width: 100%; grid-template-columns: 4.5rem minmax(0, 1fr); }
+  .privacy-tutorial { width: 100%; grid-template-columns: 4.5rem minmax(0, 1fr); }
+  .privacy-tutorial > img { width: 6.5rem; max-height: 7rem; transform: translateX(-.25rem); }
   .privacy-tutorial-box { min-height: 5.8rem; margin: 0 0 .25rem -.45rem; padding: .7rem .65rem .6rem .9rem; }
   .privacy-tutorial-box > p { font-size: .52rem; }
   .privacy-tutorial-box h2 { margin-bottom: .25rem; font-size: .82rem; }
@@ -495,8 +494,6 @@ button:disabled { cursor: not-allowed; filter: grayscale(.65); opacity: .62; }
   .phishing-hud .lives-compact .life-icons img { width: 1.25rem; height: 1.25rem; }
   .phishing-progress { gap: .3rem; }
   .phishing-progress > span { font-size: .7rem; }
-  .phishing-session-id { width: 4.6rem; font-size: .55rem; text-overflow: clip; }
-  .phishing-session-id::before { width: .45rem; height: .45rem; margin-right: .2rem; }
   .phishing-progress button { width: 2.8rem; height: 2.8rem; min-width: 44px; min-height: 44px; }
   .phishing-mail-window { width: calc(100% - 1rem); height: auto; min-height: 0; grid-template-columns: 1fr; margin-bottom: max(1rem, env(safe-area-inset-bottom)); }
   .phishing-inbox { max-height: none; border-right: 0; border-bottom: 4px solid #777783; }
@@ -523,19 +520,18 @@ button:disabled { cursor: not-allowed; filter: grayscale(.65); opacity: .62; }
   .phishing-feedback-popup > div { padding: 1.5rem 1rem 1rem 0; }
   .phishing-feedback-popup h2 { font-size: 1.4rem; }
   .phishing-feedback-popup p, .phishing-feedback-popup li { font-size: .9rem; }
-  .phishing-tutorial-card, .phishing-tutorial-layout-4 .phishing-tutorial-card, .phishing-tutorial-layout-5 .phishing-tutorial-card, .phishing-tutorial-layout-6 .phishing-tutorial-card, .phishing-tutorial-layout-7 .phishing-tutorial-card { right: max(.5rem, env(safe-area-inset-right)); bottom: max(1.5rem, env(safe-area-inset-bottom)); left: max(.5rem, env(safe-area-inset-left)); top: auto; width: auto; grid-template-columns: 6.5rem minmax(0, 1fr); }
-  .phishing-tutorial-layout-4 .phishing-tutorial-card > img, .phishing-tutorial-layout-5 .phishing-tutorial-card > img, .phishing-tutorial-layout-6 .phishing-tutorial-card > img, .phishing-tutorial-layout-7 .phishing-tutorial-card > img { grid-column: 1; grid-row: 1; width: 120%; transform: translate(.2rem, .6rem); }
+  .phishing-tutorial-card, .phishing-tutorial-layout-4 .phishing-tutorial-card, .phishing-tutorial-layout-5 .phishing-tutorial-card, .phishing-tutorial-layout-6 .phishing-tutorial-card, .phishing-tutorial-layout-7 .phishing-tutorial-card { right: max(.5rem, env(safe-area-inset-right)); bottom: max(1.5rem, env(safe-area-inset-bottom)); left: max(.5rem, env(safe-area-inset-left)); top: auto; width: auto; grid-template-columns: 4.5rem minmax(0, 1fr); }
+  .phishing-tutorial-card > img, .phishing-tutorial-layout-4 .phishing-tutorial-card > img, .phishing-tutorial-layout-5 .phishing-tutorial-card > img, .phishing-tutorial-layout-6 .phishing-tutorial-card > img, .phishing-tutorial-layout-7 .phishing-tutorial-card > img { grid-column: 1; grid-row: 1; width: 6.5rem; transform: translate(-.25rem, .6rem); }
   .phishing-tutorial-layout-4 .phishing-tutorial-window, .phishing-tutorial-layout-5 .phishing-tutorial-window, .phishing-tutorial-layout-6 .phishing-tutorial-window, .phishing-tutorial-layout-7 .phishing-tutorial-window { grid-column: 2; grid-row: 1; margin: 0 0 .4rem -.5rem; }
   .phishing-tutorial-window { min-height: 6rem; margin-left: -.5rem; }
   .phishing-tutorial-window h2 { padding: .7rem; font-size: 1rem; }
-  .phishing-tutorial-search { right: 18%; bottom: 31%; width: 3rem; }
   .header-stats { flex-direction: column; align-items: flex-end; gap: .3rem; }
   .downloads-stage, .virus-game-screen { overflow-x: hidden; }
   .virus-actions > span { display: none; }
   .virus-progress-window { right: 1rem; bottom: 1rem; width: 13rem; }
   .virus-moving-file { width: 8rem; }
-  .virus-tutorial-panel { right: 50%; bottom: .5rem; width: calc(100% - 1rem); grid-template-columns: 7rem 1fr; }
-  .virus-tutorial-mascot { width: 7.5rem; }
+  .virus-tutorial-panel { right: 50%; bottom: .5rem; width: calc(100% - 1rem); max-width: 48rem; grid-template-columns: 4.5rem minmax(0, 1fr); }
+  .virus-tutorial-mascot { width: 6.5rem; transform: translate(-.2rem, .8rem); }
   .virus-tutorial-copy { min-height: 7rem; margin-left: -.8rem; padding: 1.8rem 1rem 1.4rem; }
   .virus-tutorial-copy h2 { font-size: .9rem; }
   .virus-tutorial-copy > span:last-child { right: 1rem; bottom: .45rem; font-size: .5rem; }
@@ -546,10 +542,9 @@ button:disabled { cursor: not-allowed; filter: grayscale(.65); opacity: .62; }
 
 @media (max-width: 23rem) {
   .phishing-hud .lives-compact { width: 5rem; }
-  .phishing-progress > span:not(.phishing-session-id) { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
-  .phishing-session-id { width: 3.8rem; }
-  .phishing-actions { grid-template-columns: 1fr; }
-  .phishing-asset-button { width: 100%; }
+  .phishing-progress > span:not(.session-status-dot) { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  .phishing-actions { grid-template-columns: 1fr 1fr; }
+  .phishing-asset-button { width: auto; font-size: .64rem; }
   .phishing-feedback-popup { grid-template-columns: 1fr; }
   .phishing-feedback-popup > img { width: 6rem; margin: auto; transform: translateY(.6rem); }
   .phishing-feedback-popup > div { padding: .5rem 1rem 1rem; }
@@ -586,7 +581,6 @@ button:disabled { cursor: not-allowed; filter: grayscale(.65); opacity: .62; }
   .virus-hud .lives-compact > span { font-size: .5rem; }
   .virus-hud .lives-compact .life-icons { gap: .05rem; }
   .virus-hud .lives-compact .life-icons img { width: 1.25rem; height: 1.25rem; }
-  .virus-session-id { max-width: 6rem; overflow: hidden; font-size: .42rem; text-overflow: ellipsis; white-space: nowrap; }
   .virus-actions { gap: .35rem; }
   .virus-actions > span { display: block; max-width: 7rem; padding: .4rem .5rem; font-size: .62rem; line-height: 1.2; text-align: center; }
   .virus-actions button { width: 2.9rem; height: 2.9rem; min-width: 44px; min-height: 44px; }
@@ -599,8 +593,8 @@ button:disabled { cursor: not-allowed; filter: grayscale(.65); opacity: .62; }
   .virus-tutorial-files { top: 18%; width: 100%; justify-content: center; gap: 1.25rem; }
   .virus-tutorial-files > div { width: 6.2rem; font-size: .52rem; }
   .virus-tutorial-files img { width: 3.5rem; height: 3.5rem; }
-  .virus-tutorial-panel { right: .5rem; bottom: max(.5rem, env(safe-area-inset-bottom)); left: .5rem; width: auto; grid-template-columns: 6rem minmax(0, 1fr); transform: none; }
-  .virus-tutorial-mascot { width: 6.8rem; max-height: 8rem; transform: translate(.4rem, .35rem); }
+  .virus-tutorial-panel { right: .5rem; bottom: max(.5rem, env(safe-area-inset-bottom)); left: .5rem; width: auto; max-width: 48rem; grid-template-columns: 4.5rem minmax(0, 1fr); transform: none; }
+  .virus-tutorial-mascot { width: 6.5rem; max-height: 8rem; transform: translate(-.2rem, .35rem); }
   .virus-tutorial-copy { min-height: 6.8rem; margin-left: -.45rem; padding: 1.75rem .8rem 1.3rem; }
   .virus-tutorial-copy h2 { font-size: .78rem; line-height: 1.35; }
   .virus-tutorial-copy > span:last-child { right: .6rem; bottom: .35rem; font-size: .44rem; }
@@ -623,11 +617,69 @@ button:disabled { cursor: not-allowed; filter: grayscale(.65); opacity: .62; }
   .virus-progress-window { right: .6rem; bottom: .4rem; width: 11rem; min-width: 0; }
   .virus-moving-file { width: 6.5rem; }
   .virus-moving-file > img { width: 3rem; height: 3rem; }
-  .virus-tutorial-panel { bottom: .25rem; width: min(88%, 38rem); grid-template-columns: 7rem 1fr; }
+  .virus-tutorial-panel { bottom: .25rem; width: min(calc(100% - 1rem), 48rem); grid-template-columns: 4.5rem minmax(0, 1fr); }
   .virus-tutorial-mascot { width: 7.5rem; max-height: 7rem; }
   .virus-tutorial-copy { min-height: 5.7rem; padding: 1.6rem .8rem 1rem; }
   .virus-tutorial-copy h2 { font-size: .8rem; }
   .virus-tutorial-files { top: 14%; }
+}
+
+@media (max-width: 44rem) and (pointer: coarse), (orientation: landscape) and (max-height: 44rem) and (pointer: coarse) {
+  .phishing-screen { width: 100vw; height: 100svh; min-height: 100svh; overflow: hidden; }
+  .phishing-game-surface { height: 100%; }
+  .phishing-hud { min-height: 4.2rem; align-items: center; padding: max(.35rem, env(safe-area-inset-top)) max(.55rem, env(safe-area-inset-right)) .35rem max(.55rem, env(safe-area-inset-left)); }
+  .phishing-hud .lives-compact { width: 6rem; gap: .05rem; border-width: 3px; padding: .15rem .4rem .25rem; }
+  .phishing-hud .lives-compact > span { font-size: .5rem; }
+  .phishing-hud .lives-compact .life-icons { gap: .05rem; }
+  .phishing-hud .lives-compact .life-icons img { width: 1.35rem; height: 1.35rem; }
+  .phishing-progress { gap: .35rem; }
+  .phishing-progress > span { font-size: .76rem; }
+  .phishing-progress .session-status-dot { width: .65rem; height: .65rem; }
+  .phishing-progress button { width: 2.7rem; height: 2.7rem; min-width: 44px; min-height: 44px; }
+  .phishing-mail-window { width: calc(100% - max(1rem, env(safe-area-inset-left) + env(safe-area-inset-right))); height: calc(100svh - 4.5rem); min-height: 0; grid-template-columns: minmax(0, 1fr); margin: 0 auto; }
+  .phishing-inbox { position: fixed; z-index: 82; top: 4.35rem; bottom: max(.25rem, env(safe-area-inset-bottom)); left: max(.25rem, env(safe-area-inset-left)); width: min(78vw, 19rem); max-height: none; visibility: hidden; border: 4px solid #777783; background: #c9c9cf; box-shadow: 8px 8px 0 rgb(5 4 17 / 55%); transform: translateX(calc(-100% - 1rem)); transition: transform 160ms steps(3), visibility 0s linear 160ms; }
+  .phishing-inbox.is-open { visibility: visible; transform: translateX(0); transition: transform 160ms steps(3); }
+  .phishing-inbox-scrim { position: fixed; z-index: 81; inset: 4.2rem 0 0; width: 100%; border: 0; background: rgb(4 4 12 / 62%); }
+  .phishing-mail-window.mobile-inbox-open .phishing-inbox-scrim { display: block; }
+  .phishing-inbox-title { grid-template-columns: auto 1fr auto 2.6rem; }
+  .phishing-inbox-title button { display: grid; width: 2.6rem; height: 2.6rem; place-items: center; border: 2px solid #171426; background: #d7d9cc; color: #171426; font-size: 1.2rem; font-weight: 900; box-shadow: inset 2px 2px 0 white, inset -2px -2px 0 #74766c; }
+  .phishing-message-list { display: block; height: calc(100% - 3rem); overflow-x: hidden; overflow-y: auto; scroll-snap-type: y proximity; }
+  .phishing-message-item { display: grid; width: 100%; min-height: 4.5rem; grid-template-columns: 2.4rem minmax(0, 1fr); grid-template-rows: auto auto; scroll-snap-align: start; }
+  .phishing-message-item > img { width: 2.4rem; height: 3rem; grid-row: 1 / 3; }
+  .phishing-message-copy { align-self: end; }
+  .phishing-message-copy strong { font-size: .9rem; }
+  .phishing-message-copy > span { font-size: .76rem; }
+  .phishing-message-item small { font-size: .7rem; }
+  .phishing-message-status { grid-column: 2; justify-self: start; font-size: .68rem; }
+  .phishing-reader { height: 100%; overflow-y: auto; overscroll-behavior: contain; }
+  .phishing-reader-bar { position: sticky; z-index: 5; top: 0; min-height: 3rem; font-size: .8rem; }
+  .phishing-inbox-trigger { display: inline-flex; min-height: 2.35rem; align-items: center; gap: .35rem; border: 2px solid #171426; background: var(--color-yellow); padding: .3rem .55rem; color: var(--color-ink); font-weight: 900; box-shadow: inset 2px 2px 0 white, inset -2px -2px 0 #81731e; }
+  .phishing-inbox-trigger span { font-size: 1rem; line-height: 1; }
+  .phishing-sender { width: calc(100% - 1rem); min-height: 4rem; grid-template-columns: 2.7rem minmax(0, 1fr); margin: .4rem .5rem; }
+  .phishing-sender > img { width: 2.7rem; height: 3.3rem; }
+  .phishing-sender strong { font-size: 1.05rem; }
+  .phishing-sender small { font-size: .8rem; }
+  .phishing-email-paper { min-height: 10rem; margin: 0 .5rem; padding: .8rem; }
+  .phishing-subject { font-size: .95rem; }
+  .phishing-copy, .phishing-action { font-size: .9rem; line-height: 1.55; }
+  .phishing-attachment { font-size: .8rem; }
+  .phishing-action-footer { position: sticky; z-index: 4; bottom: 0; margin-top: .6rem; background: #d4d4d5; padding: .55rem .5rem max(.55rem, env(safe-area-inset-bottom)); }
+  .phishing-helper { margin: .5rem .15rem 0; font-size: .78rem; line-height: 1.5; }
+  .phishing-actions { display: flex; gap: .55rem; margin: 0; background: transparent; padding: 0; }
+  .phishing-asset-button { min-width: 0; min-height: 46px; flex: 1 1 0; gap: .35rem; padding: .35rem .4rem; font-size: clamp(.68rem, 2.7vw, .82rem); }
+  .phishing-asset-button img { width: 1.2rem; height: 1.2rem; flex: 0 0 auto; }
+  .phishing-exit-backdrop, .phishing-feedback-backdrop { place-items: center; }
+  .phishing-feedback-popup, .phishing-exit-dialog { width: min(90vw, 42rem); max-height: calc(100svh - 1rem); grid-template-columns: 7rem minmax(0, 1fr); }
+  .phishing-feedback-popup > img { width: 8rem; transform: translate(-.65rem, .5rem); }
+  .phishing-feedback-popup > div { padding: .8rem .8rem .8rem 0; }
+  .phishing-feedback-popup h2 { font-size: 1.3rem; }
+  .phishing-feedback-popup p, .phishing-feedback-popup li { font-size: .72rem; }
+  .phishing-feedback-popup button { min-height: 44px; }
+  .phishing-tutorial-card, .phishing-tutorial-layout-4 .phishing-tutorial-card, .phishing-tutorial-layout-5 .phishing-tutorial-card, .phishing-tutorial-layout-6 .phishing-tutorial-card, .phishing-tutorial-layout-7 .phishing-tutorial-card { top: auto; right: max(.5rem, env(safe-area-inset-right)); bottom: max(.35rem, env(safe-area-inset-bottom)); left: max(.5rem, env(safe-area-inset-left)); width: auto; max-width: 48rem; grid-template-columns: 4.5rem minmax(0, 1fr); }
+  .phishing-tutorial-card > img, .phishing-tutorial-layout-4 .phishing-tutorial-card > img, .phishing-tutorial-layout-5 .phishing-tutorial-card > img, .phishing-tutorial-layout-6 .phishing-tutorial-card > img, .phishing-tutorial-layout-7 .phishing-tutorial-card > img { grid-column: 1; grid-row: 1; width: 6.5rem; max-height: 7rem; transform: translate(-.25rem, .35rem); }
+  .phishing-tutorial-window, .phishing-tutorial-layout-4 .phishing-tutorial-window, .phishing-tutorial-layout-5 .phishing-tutorial-window, .phishing-tutorial-layout-6 .phishing-tutorial-window, .phishing-tutorial-layout-7 .phishing-tutorial-window { grid-column: 2; grid-row: 1; min-height: 5.5rem; margin: 0 0 .25rem -.4rem; }
+  .phishing-tutorial-window h2 { padding: .65rem; font-size: .82rem; }
+  .phishing-tutorial-next { bottom: max(.15rem, env(safe-area-inset-bottom)); font-size: .55rem; }
 }
 
 @media (prefers-reduced-motion: reduce) {
