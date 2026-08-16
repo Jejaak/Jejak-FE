@@ -473,7 +473,7 @@ export function DownloadsGame({ onExit }: { onExit?: () => void }) {
               <p>{won ? 'PILIHAN AMAN' : 'HATI-HATI'}</p>
               <h2>{won ? 'Komputer aman!' : 'Komputer terinfeksi!'}</h2>
               <p>{won ? '15 file aman berhasil mencapai komputer.' : 'HP habis karena file berbahaya mencapai komputer.'}</p>
-              <div className="button-row"><button className="virus-result-primary" onClick={reset} type="button">Main lagi</button><button className="virus-result-secondary" disabled={exiting} onClick={() => void exitGame()} type="button">{exiting ? 'Menutup sesi...' : 'Kembali ke home'}</button></div>
+              <div className="button-row"><button className="virus-result-primary" onClick={reset} type="button">Main lagi</button><button className="virus-result-secondary" disabled={exiting} onClick={() => void exitGame()} type="button">{exiting ? 'Menutup sesi...' : 'Kembali'}</button></div>
             </div>
           </section>
         </div>
@@ -485,8 +485,9 @@ export function DownloadsGame({ onExit }: { onExit?: () => void }) {
     <main className={`virus-game-screen ${tutorial ? 'virus-tutorial-open' : ''}`} tabIndex={-1}>
       <h1 className="sr-only">Virus</h1>
       <div className="virus-hud">
-        <div className="virus-hud-left"><Lives compact current={maxMistakes - displayMistakes} /><span aria-label="Koneksi realtime aktif" className="session-status-dot" data-state="connected" /></div>
+        <div className="virus-hud-left"><Lives compact current={maxMistakes - displayMistakes} /></div>
         <div className="virus-actions">
+          <span aria-label="Koneksi realtime aktif" className="session-status-dot" data-state="connected" />
           <span>{displaySafeCount}/{safeTarget} file aman</span>
           <button aria-label="Buka tutorial" onClick={openTutorial} type="button"><img alt="" aria-hidden="true" src="/assets/Shared/Game/ButtonInfo.png" /></button>
           <button aria-label="Keluar dari game" disabled={exiting} onClick={openExitConfirm} type="button"><img alt="" aria-hidden="true" src="/assets/Shared/Game/ButtonClose.png" /></button>
