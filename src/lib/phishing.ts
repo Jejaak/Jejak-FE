@@ -61,7 +61,9 @@ export interface PhishingAnswerResult {
   clues: PhishingClue[];
 }
 
-export type PhishingRealtimeEvent = PhishingAnswerResult | { type: 'phishing.snapshot'; data: PhishingSession };
+export type PhishingRealtimeEvent = PhishingAnswerResult
+  | { type: 'phishing.snapshot'; data: PhishingSession }
+  | { type: 'phishing.session.abandoned'; sessionId: string; status: 'ABANDONED' };
 
 export async function startPhishingSession(restart = false): Promise<PhishingSession> {
   const response = await fetch(apiUrl('/api/v1/phishing-sessions'), {
@@ -83,6 +85,15 @@ export async function getPhishingSession(sessionId: string): Promise<PhishingSes
   if (!response.ok) throw new Error('Sesi phishing sudah berakhir atau tidak tersedia.');
   const payload = await response.json() as { data: PhishingSession };
   return payload.data;
+}
+
+export async function abandonPhishingSession(sessionId: string, keepalive = false): Promise<void> {
+  const response = await fetch(apiUrl(`/api/v1/phishing-sessions/${sessionId}/abandon`), {
+    method: 'POST',
+    credentials: 'include',
+    keepalive,
+  });
+  if (!response.ok && response.status !== 404) throw new Error('Sesi phishing belum dapat ditutup.');
 }
 
 export async function postPhishingAnswer(

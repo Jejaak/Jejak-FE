@@ -3,8 +3,9 @@ import { useNavigate, useParams } from 'react-router';
 import { GameLoadingWindow } from '../components/game-loading-window.tsx';
 import { GameResult } from '../components/game-result.tsx';
 import { Lives } from '../components/lives.tsx';
-import { getPhishingSession, phishingSocketUrl, postPhishingAnswer, startPhishingSession, type PhishingAnswerResult, type PhishingQuestion, type PhishingRealtimeEvent, type PhishingRegionId, type PhishingSession } from '../lib/phishing.ts';
+import { abandonPhishingSession, getPhishingSession, phishingSocketUrl, postPhishingAnswer, startPhishingSession, type PhishingAnswerResult, type PhishingQuestion, type PhishingRealtimeEvent, type PhishingRegionId, type PhishingSession } from '../lib/phishing.ts';
 
+const phishingAbandonTimers = new Map<string, number>();
 const maxScore = 15;
 const phishingTutorialExample: PhishingQuestion = {
   id: 'tutorial-phishing',
@@ -40,6 +41,7 @@ export function PhishingGame({ onExit }: { onExit?: () => void }) {
   const navigate = useNavigate();
   const { publicId } = useParams<{ publicId: string }>();
   const socketRef = useRef<WebSocket | null>(null);
+  const intentionalExitRef = useRef(false);
   const latestAnsweredCountRef = useRef(0);
   const pendingAnswersRef = useRef(new Map<string, {
     resolve: (result: PhishingAnswerResult) => void;
@@ -53,6 +55,7 @@ export function PhishingGame({ onExit }: { onExit?: () => void }) {
   const messageButtonRefs = useRef<Array<HTMLButtonElement | null>>([]);
   const feedbackButtonRef = useRef<HTMLButtonElement>(null);
   const exitCancelRef = useRef<HTMLButtonElement>(null);
+  const inboxTriggerRef = useRef<HTMLButtonElement>(null);
   const exitTriggerRef = useRef<HTMLButtonElement>(null);
   const exitWasOpenRef = useRef(false);
   const senderRef = useRef<HTMLButtonElement>(null);
@@ -72,6 +75,8 @@ export function PhishingGame({ onExit }: { onExit?: () => void }) {
   const [answers, setAnswers] = useState<Record<string, StoredPhishingAnswer>>({});
   const [feedbackEmailId, setFeedbackEmailId] = useState<string | null>(null);
   const [exitConfirmOpen, setExitConfirmOpen] = useState(false);
+  const [mobileInboxOpen, setMobileInboxOpen] = useState(false);
+  const [exiting, setExiting] = useState(false);
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState('');
   const [finished, setFinished] = useState(false);
@@ -110,13 +115,26 @@ export function PhishingGame({ onExit }: { onExit?: () => void }) {
   }, [exitConfirmOpen]);
 
   useEffect(() => {
+    if (!mobileInboxOpen) return;
+    messageButtonRefs.current[emailIndex]?.focus();
+    const close = (event: globalThis.KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setMobileInboxOpen(false);
+        inboxTriggerRef.current?.focus();
+      }
+    };
+    window.addEventListener('keydown', close);
+    return () => window.removeEventListener('keydown', close);
+  }, [emailIndex, mobileInboxOpen]);
+
+  useEffect(() => {
     if (tutorialStep === null) return;
     const target = tutorialStep <= 2
       ? senderRef.current
       : tutorialStep <= 4
         ? paperRef.current
         : tutorialStep === 5
-          ? markRef.current ?? actionRef.current
+          ? actionRef.current ?? markRef.current
           : saveRef.current ?? paperRef.current;
     target?.scrollIntoView({ block: 'center', inline: 'nearest' });
   }, [tutorialStep]);
@@ -195,6 +213,30 @@ export function PhishingGame({ onExit }: { onExit?: () => void }) {
     };
   }, [navigate, publicId]);
 
+  useEffect(() => {
+    const sessionId = sessionState?.publicId;
+    if (!sessionId || sessionState.status !== 'ACTIVE') return;
+    const activeSessionId = sessionId;
+    const pendingTimer = phishingAbandonTimers.get(activeSessionId);
+    if (pendingTimer !== undefined) {
+      window.clearTimeout(pendingTimer);
+      phishingAbandonTimers.delete(activeSessionId);
+    }
+    function abandonOnPageHide() {
+      if (!intentionalExitRef.current) void abandonPhishingSession(activeSessionId, true).catch(() => undefined);
+    }
+    window.addEventListener('pagehide', abandonOnPageHide);
+    return () => {
+      window.removeEventListener('pagehide', abandonOnPageHide);
+      if (intentionalExitRef.current) return;
+      const timer = window.setTimeout(() => {
+        phishingAbandonTimers.delete(activeSessionId);
+        void abandonPhishingSession(activeSessionId, true).catch(() => undefined);
+      }, 0);
+      phishingAbandonTimers.set(activeSessionId, timer);
+    };
+  }, [sessionState?.publicId, sessionState?.status]);
+
   const sessionPublicId = sessionState?.publicId;
 
   useEffect(() => {
@@ -243,6 +285,10 @@ export function PhishingGame({ onExit }: { onExit?: () => void }) {
           return;
         }
         const realtime = message;
+        if (realtime.type === 'phishing.session.abandoned') {
+          navigate('/', { replace: true });
+          return;
+        }
         if (realtime.type === 'phishing.snapshot') {
           const snapshot = realtime.data;
           if (snapshot.answeredCount < latestAnsweredCountRef.current) return;
@@ -313,7 +359,24 @@ export function PhishingGame({ onExit }: { onExit?: () => void }) {
       pendingAnswers.clear();
       socket?.close();
     };
-  }, [sessionPublicId]);
+  }, [navigate, sessionPublicId]);
+
+  async function exitGame() {
+    if (!sessionState || exiting) return;
+    intentionalExitRef.current = true;
+    setExiting(true);
+    setSaveError('');
+    try {
+      if (sessionState.status === 'ACTIVE') await abandonPhishingSession(sessionState.publicId);
+      if (onExit) onExit();
+      else navigate('/', { replace: true });
+    } catch (error) {
+      intentionalExitRef.current = false;
+      setSaveError(error instanceof Error ? error.message : 'Sesi belum dapat ditutup.');
+      setExiting(false);
+      setExitConfirmOpen(false);
+    }
+  }
 
   function advanceTutorial() {
     setTutorialStep((step) => step === null || step >= 6 ? null : step + 1);
@@ -399,11 +462,14 @@ export function PhishingGame({ onExit }: { onExit?: () => void }) {
 
   function selectEmail(index: number) {
     if (saving) return;
+    const inboxWasOpen = mobileInboxOpen;
     setFeedbackEmailId(null);
+    setMobileInboxOpen(false);
     setEmailIndex(index);
     setMarking(false);
     setSaveError('');
     messageButtonRefs.current[index]?.scrollIntoView({ block: 'nearest', inline: 'center' });
+    if (inboxWasOpen) requestAnimationFrame(() => inboxTriggerRef.current?.focus());
   }
 
   function navigateMessages(event: KeyboardEvent<HTMLButtonElement>, index: number) {
@@ -447,7 +513,7 @@ export function PhishingGame({ onExit }: { onExit?: () => void }) {
   const tutorial = tutorialStep === null ? null : tutorialContent[tutorialStep];
 
   if (loadError || !email) {
-    return <GameLoadingWindow error={loadError || undefined} message="Membuka kotak masuk permainan…" onBack={() => navigate('/')} onRetry={loadError ? () => window.location.reload() : undefined} sessionId={sessionState?.publicId} title="PHISHING.EXE" />;
+    return <GameLoadingWindow error={loadError || undefined} message="Membuka kotak masuk permainan…" onBack={() => navigate('/')} onRetry={loadError ? () => window.location.reload() : undefined} title="PHISHING.EXE" />;
   }
 
   if (finished) {
@@ -456,22 +522,23 @@ export function PhishingGame({ onExit }: { onExit?: () => void }) {
   }
 
   return (
-    <main className={`phishing-screen ${tutorialStep === null ? '' : `phishing-tutorial-step-${tutorialStep + 1}`}`} tabIndex={-1}>
+    <main className={`phishing-screen ${marking ? 'phishing-marking-mode' : ''} ${tutorialStep === null ? '' : `phishing-tutorial-step-${tutorialStep + 1}`}`} tabIndex={-1}>
       <div aria-hidden={popupFeedback !== null || tutorial !== null || exitConfirmOpen} className="phishing-game-surface" inert={popupFeedback !== null || tutorial !== null || exitConfirmOpen}>
       <header className="phishing-hud">
         <Lives compact current={lives} />
         <div className="phishing-progress">
-          {sessionState && <span aria-label={`ID sesi ${sessionState.publicId}. Koneksi realtime ${socketState}`} className="phishing-session-id" data-state={socketState} title={`/${sessionState.publicId}`}>/{sessionState.publicId}</span>}
+          {sessionState && <span aria-label={`Koneksi realtime ${socketState}`} className="session-status-dot" data-state={socketState} />}
           <span>{answeredCount}/{maxScore} Pesan</span>
-          <button aria-label="Buka tutorial" onClick={() => setTutorialStep(0)} ref={tutorialTriggerRef} type="button"><img alt="" aria-hidden="true" src="/assets/Shared/Game/ButtonInfo.png" /></button>
-          <button aria-label="Keluar dari permainan" onClick={() => setExitConfirmOpen(true)} ref={exitTriggerRef} type="button"><img alt="" aria-hidden="true" src="/assets/Shared/Game/ButtonClose.png" /></button>
+          <button aria-label="Buka tutorial" onClick={() => { setMobileInboxOpen(false); setTutorialStep(0); }} ref={tutorialTriggerRef} type="button"><img alt="" aria-hidden="true" src="/assets/Shared/Game/ButtonInfo.png" /></button>
+          <button aria-label="Keluar dari permainan" onClick={() => { setMobileInboxOpen(false); setExitConfirmOpen(true); }} ref={exitTriggerRef} type="button"><img alt="" aria-hidden="true" src="/assets/Shared/Game/ButtonClose.png" /></button>
         </div>
       </header>
 
-      <section className="phishing-mail-window" aria-label="Aplikasi email">
-        <aside className="phishing-inbox" aria-label="Kotak masuk pesan">
-          <div className="phishing-inbox-title"><span aria-hidden="true">›</span><h1>Inbox Pesan</h1><span>{questions.length}</span></div>
-          <div className="phishing-message-list">
+      <section className={`phishing-mail-window ${mobileInboxOpen ? 'mobile-inbox-open' : ''}`} aria-label="Aplikasi email">
+        <button aria-label="Tutup daftar pesan" className="phishing-inbox-scrim" onClick={() => setMobileInboxOpen(false)} type="button" />
+        <aside aria-label="Kotak masuk pesan" className={`phishing-inbox ${mobileInboxOpen ? 'is-open' : ''}`}>
+          <div className="phishing-inbox-title"><span aria-hidden="true">›</span><h1>Inbox Pesan</h1><span>{questions.length}</span><button aria-label="Tutup daftar pesan" onClick={() => { setMobileInboxOpen(false); inboxTriggerRef.current?.focus(); }} type="button">×</button></div>
+          <div className="phishing-message-list" id="phishing-inbox-list">
             {questions.map((item, index) => {
               const itemAnswered = answers[item.id] !== undefined;
               return (
@@ -496,8 +563,8 @@ export function PhishingGame({ onExit }: { onExit?: () => void }) {
           </div>
         </aside>
 
-        <article className="phishing-reader" aria-labelledby="email-subject">
-          <div className="phishing-reader-bar"><span>Pesan {emailIndex + 1}</span><span>{answered ? 'Sudah dijawab' : selectedRegions.length > 0 ? `${selectedRegions.length} ditandai` : 'Belum dijawab'}</span></div>
+        <article aria-hidden={mobileInboxOpen} aria-labelledby="email-subject" className="phishing-reader" inert={mobileInboxOpen}>
+          <div className="phishing-reader-bar"><button aria-controls="phishing-inbox-list" aria-expanded={mobileInboxOpen} aria-label="Buka daftar pesan" className="phishing-inbox-trigger" onClick={() => setMobileInboxOpen(true)} ref={inboxTriggerRef} type="button"><span aria-hidden="true">☰</span> Pesan</button><span>Pesan {emailIndex + 1}</span><span>{answered ? 'Sudah dijawab' : selectedRegions.length > 0 ? `${selectedRegions.length} ditandai` : 'Belum dijawab'}</span></div>
           <button aria-pressed={selectedRegions.includes('sender')} className={regionClass('sender', 'phishing-sender')} disabled={!marking || answered} onClick={() => toggleRegion('sender')} ref={senderRef} type="button">
             <img alt={`Karakter ${displayEmail.senderName}`} src={displayEmail.senderAsset} />
             <span><strong>{displayEmail.senderName}</strong><small>{displayEmail.senderEmail}</small></span>
@@ -505,17 +572,19 @@ export function PhishingGame({ onExit }: { onExit?: () => void }) {
           <div className="phishing-email-paper" ref={paperRef}>
             <button aria-pressed={selectedRegions.includes('subject')} className={regionClass('subject', 'phishing-subject')} disabled={!marking || answered} id="email-subject" onClick={() => toggleRegion('subject')} type="button"><strong>Subjek:</strong> {displayEmail.subject}</button>
             <button aria-pressed={selectedRegions.includes('body')} className={regionClass('body', 'phishing-copy')} disabled={!marking || answered} onClick={() => toggleRegion('body')} type="button"><span>{displayEmail.greeting}</span><span>{displayEmail.body}</span></button>
-            <button aria-pressed={selectedRegions.includes('action')} className={regionClass('action', 'phishing-action')} disabled={!marking || answered} onClick={() => toggleRegion('action')} ref={actionRef} type="button">{displayEmail.action}</button>
+            <button aria-pressed={selectedRegions.includes('action')} className={regionClass('action', 'phishing-action')} disabled={!marking || answered} onClick={() => toggleRegion('action')} ref={actionRef} type="button"><span className="phishing-action-content">{displayEmail.action}{tutorialStep === 5 && <img alt="Ikon pencarian" className="phishing-tutorial-search" src="/assets/Game3/search.png" />}</span></button>
             {displayEmail.attachment && <button aria-pressed={selectedRegions.includes('attachment')} className={regionClass('attachment', 'phishing-attachment')} disabled={!marking || answered} onClick={() => toggleRegion('attachment')} type="button"><img alt="" aria-hidden="true" src={displayEmail.attachment.asset} /><span>{displayEmail.attachment.name}</span></button>}
           </div>
 
           {!answered && (
-            <div className="phishing-actions">
-              <button aria-pressed={marking} className="phishing-asset-button mark-email-button" disabled={saving} onClick={() => setMarking((current) => !current)} ref={markRef} type="button"><img alt="" aria-hidden="true" src="/assets/Shared/Game/email.png" /><span>{marking ? 'Selesai Memilih' : 'Pilih Tanda'}</span></button>
-              <button className={`phishing-asset-button ${selectedRegions.length > 0 ? 'mark-email-button' : 'save-email-button'}`} disabled={saving} onClick={() => void saveAnswer()} ref={saveRef} type="button"><img alt="" aria-hidden="true" src={selectedRegions.length > 0 ? '/assets/Shared/Game/email.png' : '/assets/Shared/Game/save.png'} /><span>{saving ? 'Menyimpan...' : selectedRegions.length > 0 ? 'Tandai Email' : 'Simpan'}</span></button>
+            <div className="phishing-action-footer">
+              <div className="phishing-actions">
+                <button aria-pressed={marking} className="phishing-asset-button mark-email-button" disabled={saving} onClick={() => setMarking((current) => !current)} ref={markRef} type="button"><img alt="" aria-hidden="true" src="/assets/Shared/Game/email.png" /><span>Pilih Tanda</span></button>
+                <button className={`phishing-asset-button ${selectedRegions.length > 0 ? 'mark-email-button' : 'save-email-button'}`} disabled={saving} onClick={() => void saveAnswer()} ref={saveRef} type="button"><img alt="" aria-hidden="true" src={selectedRegions.length > 0 ? '/assets/Shared/Game/email.png' : '/assets/Shared/Game/save.png'} /><span>{saving ? 'Menyimpan...' : selectedRegions.length > 0 ? 'Tandai Email' : 'Simpan'}</span></button>
+              </div>
+              {marking && <p className="phishing-helper" role="status">Klik bagian email yang mencurigakan. Jika email aman, jangan tandai apa pun lalu Simpan.</p>}
             </div>
           )}
-          {marking && !answered && <p className="phishing-helper" role="status">Klik bagian email yang mencurigakan. Jika email aman, jangan tandai apa pun lalu Simpan.</p>}
           {saveError && <p className="phishing-save-error" role="alert">{saveError}</p>}
         </article>
       </section>
@@ -527,10 +596,10 @@ export function PhishingGame({ onExit }: { onExit?: () => void }) {
             <img alt="Maskot JEJAK terkejut" src="/assets/Shared/Mascots/Mascot_Shocked.png" />
             <div>
               <h2 id="phishing-exit-title">Keluar dari permainan?</h2>
-              <p>Session <strong>/{sessionState?.publicId}</strong> masih dapat dilanjutkan saat kamu kembali.</p>
+              <p>Progres sesi ini akan ditandai belum selesai dan tidak dapat dilanjutkan kembali.</p>
               <div>
-                <button onClick={() => (onExit ? onExit() : navigate('/'))} type="button">Ya, keluar</button>
-                <button onClick={() => setExitConfirmOpen(false)} ref={exitCancelRef} type="button">Lanjut bermain</button>
+                <button disabled={exiting} onClick={() => void exitGame()} type="button">{exiting ? 'Menutup sesi...' : 'Ya, keluar'}</button>
+                <button disabled={exiting} onClick={() => setExitConfirmOpen(false)} ref={exitCancelRef} type="button">Lanjut bermain</button>
               </div>
             </div>
           </section>
@@ -558,7 +627,6 @@ export function PhishingGame({ onExit }: { onExit?: () => void }) {
             <img alt="Maskot JEJAK" src={(tutorialStep ?? 0) === 6 ? '/assets/Shared/Mascots/Mascot_Wink.png' : (tutorialStep ?? 0) >= 3 ? '/assets/Shared/Mascots/Mascot_Busy.png' : '/assets/Shared/Mascots/Mascot_Shocked.png'} />
             <div className="phishing-tutorial-window"><span aria-hidden="true" className="phishing-tutorial-window-bar">□ □ ×</span><h2>{tutorial}</h2></div>
           </section>
-          {(tutorialStep ?? 0) === 5 && <img alt="Ikon pencarian" className="phishing-tutorial-search" src="/assets/Game3/search.png" />}
           <span className="phishing-tutorial-next">Klik di mana saja untuk lanjut</span>
         </button>
       )}
