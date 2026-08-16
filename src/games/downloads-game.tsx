@@ -459,7 +459,7 @@ export function DownloadsGame({ onExit }: { onExit?: () => void }) {
   }
 
   if (loading || !session) {
-    return <GameLoadingWindow error={error} message={publicId ? 'Memuat sesi unduhan…' : 'Membuat sesi unduhan…'} onBack={() => navigate('/')} onRetry={error ? () => window.location.reload() : undefined} sessionId={publicId} title="VIRUS.EXE" />;
+    return <GameLoadingWindow error={error} message={publicId ? 'Memuat sesi unduhan…' : 'Membuat sesi unduhan…'} onBack={() => navigate('/')} onRetry={error ? () => window.location.reload() : undefined} title="VIRUS.EXE" />;
   }
 
   if (result && terminalFeedbackReady) {
@@ -485,7 +485,7 @@ export function DownloadsGame({ onExit }: { onExit?: () => void }) {
     <main className={`virus-game-screen ${tutorial ? 'virus-tutorial-open' : ''}`} tabIndex={-1}>
       <h1 className="sr-only">Virus</h1>
       <div className="virus-hud">
-        <div className="virus-hud-left"><Lives compact current={maxMistakes - displayMistakes} /><span className="virus-session-id">{session.publicId}</span></div>
+        <div className="virus-hud-left"><Lives compact current={maxMistakes - displayMistakes} /><span aria-label="Koneksi realtime aktif" className="session-status-dot" data-state="connected" /></div>
         <div className="virus-actions">
           <span>{displaySafeCount}/{safeTarget} file aman</span>
           <button aria-label="Buka tutorial" onClick={openTutorial} type="button"><img alt="" aria-hidden="true" src="/assets/Shared/Game/ButtonInfo.png" /></button>
