@@ -808,7 +808,7 @@ button:disabled { cursor: not-allowed; filter: grayscale(.65); opacity: .62; }
   .public-browser-inner { inset: 2.25rem .3rem .3rem; grid-template-rows: 2.3rem minmax(0, 1fr); }
   .public-browser-inner > nav { gap: .2rem; padding: 0 .45rem; }
   .public-browser-inner > nav button { height: 2.15rem; padding: .25rem .55rem; font-size: .74rem; }
-  .public-browser-page { overflow: hidden; border-width: 2px; padding: .5rem; }
+  .public-browser-page { overflow-x: hidden; overflow-y: auto; border-width: 2px; padding: .5rem; overscroll-behavior: contain; scrollbar-gutter: stable; }
   .public-browser-inner > footer { font-size: .36rem; }
   .public-home-tab { grid-template-columns: 1fr 1fr; grid-template-rows: auto auto; align-content: start; gap: .5rem; }
   .public-intro h2 { margin-bottom: .3rem; font-size: .82rem; }
@@ -829,7 +829,7 @@ button:disabled { cursor: not-allowed; filter: grayscale(.65); opacity: .62; }
   .public-games-tab button strong { font-size: .76rem; }
   .public-games-tab button small { font-size: .56rem; }
   .public-games-tab button i { border-left-width: 2px; font-size: 1.35rem; }
-  .public-learn-tab { height: 100%; min-height: 0; grid-template-rows: auto auto minmax(0, 1fr); align-content: stretch; overflow: hidden; padding: .65rem .55rem; }
+  .public-learn-tab { height: auto; min-height: 100%; grid-template-rows: auto auto auto; align-content: start; overflow: visible; padding: .65rem .55rem 1rem; }
   .public-learn-tab h2 { margin-bottom: .45rem; font-size: 1.25rem; }
   .public-learn-tab > p { margin-bottom: .8rem; font-size: .72rem; }
   .public-learn-tab ol { min-height: 0; grid-template-columns: 1fr 1fr; grid-template-rows: repeat(2, minmax(0, 1fr)); column-gap: 2rem; row-gap: .65rem; }
