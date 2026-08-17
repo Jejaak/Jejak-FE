@@ -286,7 +286,7 @@ export function PhishingGame({ onExit }: { onExit?: () => void }) {
         }
         const realtime = message;
         if (realtime.type === 'phishing.session.abandoned') {
-          navigate('/', { replace: true });
+          navigate('/home', { replace: true });
           return;
         }
         if (realtime.type === 'phishing.snapshot') {
@@ -369,7 +369,7 @@ export function PhishingGame({ onExit }: { onExit?: () => void }) {
     try {
       if (sessionState.status === 'ACTIVE') await abandonPhishingSession(sessionState.publicId);
       if (onExit) onExit();
-      else navigate('/', { replace: true });
+      else navigate('/home', { replace: true });
     } catch (error) {
       intentionalExitRef.current = false;
       setSaveError(error instanceof Error ? error.message : 'Sesi belum dapat ditutup.');
@@ -513,12 +513,12 @@ export function PhishingGame({ onExit }: { onExit?: () => void }) {
   const tutorial = tutorialStep === null ? null : tutorialContent[tutorialStep];
 
   if (loadError || !email) {
-    return <GameLoadingWindow error={loadError || undefined} message="Membuka kotak masuk permainan…" onBack={() => navigate('/')} onRetry={loadError ? () => window.location.reload() : undefined} title="PHISHING.EXE" />;
+    return <GameLoadingWindow error={loadError || undefined} message="Membuka kotak masuk permainan…" onBack={() => navigate('/home')} onRetry={loadError ? () => window.location.reload() : undefined} title="PHISHING.EXE" />;
   }
 
   if (finished) {
     const lost = sessionState?.status === 'LOST';
-    return <main className="game-stage centered"><GameResult detail={lost ? `Tiga jawaban salah. Kamu menyelesaikan ${answeredCount} pesan dengan ${score} jawaban benar.` : `${score} dari ${maxScore} email dinilai dengan tepat.`} onExit={onExit ?? (() => navigate('/'))} onRetry={reset} title={lost ? 'HP habis' : 'Kotak masuk aman'} /></main>;
+    return <main className="game-stage centered"><GameResult detail={lost ? `Tiga jawaban salah. Kamu menyelesaikan ${answeredCount} pesan dengan ${score} jawaban benar.` : `${score} dari ${maxScore} email dinilai dengan tepat.`} onExit={onExit ?? (() => navigate('/home'))} onRetry={reset} title={lost ? 'HP habis' : 'Kotak masuk aman'} /></main>;
   }
 
   return (

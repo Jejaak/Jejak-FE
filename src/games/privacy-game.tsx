@@ -270,7 +270,7 @@ export function PrivacyGame({ onExit }: { onExit?: () => void }) {
 
   function exitGame() {
     intentionalExitRef.current = true;
-    const exit = onExit ?? (() => navigate('/'));
+    const exit = onExit ?? (() => navigate('/home'));
     if (gameSession?.status === 'ACTIVE') {
       void abandonPrivacySession(gameSession.id).catch(() => undefined);
     }
@@ -278,12 +278,12 @@ export function PrivacyGame({ onExit }: { onExit?: () => void }) {
   }
 
   if (loading) return <GameLoadingWindow message={publicId ? 'Memuat sesi permainan…' : 'Membuat sesi permainan…'} title="PRIVASI.EXE" />;
-  if (!gameSession || !question) return <GameLoadingWindow error={error || 'Sesi Privasi tidak tersedia.'} onBack={() => navigate('/')} onRetry={() => void loadSession()} title="PRIVASI.EXE" />;
+  if (!gameSession || !question) return <GameLoadingWindow error={error || 'Sesi Privasi tidak tersedia.'} onBack={() => navigate('/home')} onRetry={() => void loadSession()} title="PRIVASI.EXE" />;
   if (lost && !answerResult) {
-    return <main className="game-stage centered"><GameResult detail={`Tiga jawaban keliru. Skor sesi: ${gameSession.score}/${gameSession.questionCount}.`} onExit={onExit ?? (() => navigate('/'))} onRetry={() => navigate('/game/privacy', { replace: true })} title="Nyawa habis" /></main>;
+    return <main className="game-stage centered"><GameResult detail={`Tiga jawaban keliru. Skor sesi: ${gameSession.score}/${gameSession.questionCount}.`} onExit={onExit ?? (() => navigate('/home'))} onRetry={() => navigate('/game/privacy', { replace: true })} title="Nyawa habis" /></main>;
   }
   if (finished && !answerResult) {
-    return <main className="game-stage centered"><GameResult detail={`${gameSession.score} dari ${gameSession.questionCount} keputusan aman.`} onExit={onExit ?? (() => navigate('/'))} onRetry={() => navigate('/game/privacy', { replace: true })} title="Privasi selesai" /></main>;
+    return <main className="game-stage centered"><GameResult detail={`${gameSession.score} dari ${gameSession.questionCount} keputusan aman.`} onExit={onExit ?? (() => navigate('/home'))} onRetry={() => navigate('/game/privacy', { replace: true })} title="Privasi selesai" /></main>;
   }
 
   return (

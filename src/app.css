@@ -1,5 +1,13 @@
 @import "tailwindcss" source(none);
 
+@font-face {
+  font-family: "Fixedsys Excelsior 3.01";
+  src: url('/assets/fonts/fsex300.woff') format('woff');
+  font-style: normal;
+  font-weight: 400 900;
+  font-display: swap;
+}
+
 @source './**/*.{ts,tsx}';
 
 @theme {
@@ -585,12 +593,24 @@ button:disabled { cursor: not-allowed; filter: grayscale(.65); opacity: .62; }
   .phishing-tutorial-next { right: max(.5rem, env(safe-area-inset-right)); bottom: max(.25rem, env(safe-area-inset-bottom)); font-size: .7rem; }
 }
 
+@media (min-width: 44.01rem) and (max-width: 64rem) {
+  .public-learn-tab { align-content: start; padding: 1.4rem 1rem; }
+  .public-learn-tab h2 { font-size: 1.5rem; }
+  .public-learn-tab > p { margin-bottom: 1rem; font-size: .88rem; }
+  .public-learn-tab ol { grid-template-columns: 1fr 1fr; grid-template-rows: repeat(2, minmax(0, 1fr)); column-gap: 2.2rem; row-gap: 1rem; }
+  .public-learn-tab li { min-height: 9.5rem; padding: .75rem .65rem; }
+  .public-learn-tab li strong { font-size: .82rem; }
+  .public-learn-tab li p { font-size: .68rem; }
+  .public-learn-chevron { display: none; }
+  .public-learn-tab li:nth-child(1) .public-learn-chevron, .public-learn-tab li:nth-child(3) .public-learn-chevron { right: -2.1rem; z-index: 4; display: block; width: 2rem !important; filter: drop-shadow(1px 1px 0 #292752); }
+}
+
 @media (max-width: 44rem) and (orientation: portrait) {
   .desktop-onboarding-dialog { top: auto; right: .5rem; bottom: calc(3rem + env(safe-area-inset-bottom)); left: .5rem; width: auto; grid-template-columns: 6rem minmax(0, 1fr); transform: none; }
   .desktop-onboarding-dialog > img { width: 7rem; max-height: 8rem; transform: translate(.35rem, .35rem); }
-  .desktop-onboarding-window { width: 100%; height: 8.5rem; min-height: 0; padding: 2rem .8rem 1rem; }
+  .desktop-onboarding-window { width: 100%; height: 10rem; min-height: 0; padding: 2.1rem 1rem 1.4rem; }
   .desktop-onboarding-window > span { height: 1.3rem; font-size: .58rem; line-height: .95rem; }
-  .desktop-onboarding-window p { font-size: clamp(.68rem, 2.8vw, .82rem); line-height: 1.35; }
+  .desktop-onboarding-window p { font-size: clamp(.88rem, 3.8vw, 1.08rem); line-height: 1.42; }
   .desktop-onboarding-hint { right: max(.5rem, env(safe-area-inset-right)); bottom: calc(2.8rem + env(safe-area-inset-bottom)); font-size: .5rem; }
   .desktop-onboarding-layout-3 .desktop-onboarding-hint { bottom: calc(2.8rem + env(safe-area-inset-bottom)); }
   .desktop-onboarding-step-5 .desktop-game-shortcuts, .desktop-onboarding-step-6 .desktop-game-shortcuts, .desktop-onboarding-step-7 .desktop-game-shortcuts, .desktop-onboarding-step-8 .desktop-game-shortcuts, .desktop-onboarding-step-9 .desktop-game-shortcuts, .desktop-onboarding-step-10 .desktop-game-shortcuts, .desktop-onboarding-step-11 .desktop-game-shortcuts { position: relative; }
@@ -702,6 +722,159 @@ button:disabled { cursor: not-allowed; filter: grayscale(.65); opacity: .62; }
   .phishing-tutorial-window, .phishing-tutorial-layout-4 .phishing-tutorial-window, .phishing-tutorial-layout-5 .phishing-tutorial-window, .phishing-tutorial-layout-6 .phishing-tutorial-window, .phishing-tutorial-layout-7 .phishing-tutorial-window { grid-column: 2; grid-row: 1; min-height: 5.5rem; margin: 0 0 .25rem -.4rem; }
   .phishing-tutorial-window h2 { padding: .65rem; font-size: .82rem; }
   .phishing-tutorial-next { bottom: max(.15rem, env(safe-area-inset-bottom)); font-size: .55rem; }
+}
+
+.public-landing { position: relative; display: grid; min-height: 100dvh; grid-template-columns: minmax(18rem, 30%) minmax(0, 1fr); grid-template-rows: 6rem minmax(0, calc(min(82dvh, 47rem) - 13rem)) 5rem; align-content: center; gap: 1rem 2rem; overflow: hidden; background: #9c8be2 url('/assets/Landing/bg.png') center / cover; padding: clamp(1rem, 3vw, 2.5rem); color: #171426; }
+.public-landing, .public-landing button { font-family: "Fixedsys Excelsior 3.01", monospace; font-weight: 400; }
+.public-landing h1, .public-landing h2, .public-landing strong, .public-landing b { font-weight: 400; }
+.public-landing::after { position: absolute; z-index: 50; inset: 0; pointer-events: none; background: repeating-linear-gradient(0deg, rgb(39 27 91 / 5%) 0 1px, transparent 1px 4px); content: ""; }
+.public-landing-logo { grid-column: 1; grid-row: 1; align-self: center; justify-self: center; width: min(80%, 17rem); max-height: 6rem; object-fit: contain; filter: drop-shadow(5px 5px 0 rgb(24 15 68 / 35%)); }
+.public-mission { position: relative; grid-column: 1; grid-row: 2; align-self: center; justify-self: center; width: min(100%, 22rem); aspect-ratio: 308 / 443; }
+.public-mission > img { position: absolute; inset: 0; width: 100%; height: 100%; }
+.public-mission > div { position: absolute; inset: 20% 11% 9%; }
+.public-mission h1 { margin: .15rem 0 1rem; color: #34364d; font-size: clamp(.75rem, 1.3vw, 1rem); letter-spacing: .13em; }
+.public-mission section { display: flex; height: 100%; min-height: 0; flex-direction: column; align-items: center; justify-content: flex-start; gap: .65rem; overflow: hidden; padding: .45rem .65rem .35rem; text-align: left; }
+.public-mission section > img { width: min(44%, 6.8rem); height: auto; max-height: 7.5rem; object-fit: contain; }
+.public-mission section > div:not(.public-mission-status) { width: min(100%, 13rem); }
+.public-mission h2 { position: relative; margin-bottom: .75rem; padding-left: .9rem; font-size: clamp(.75rem, 1vw, .9rem); line-height: 1.15; }
+.public-mission h2::before { position: absolute; top: 0; bottom: 0; left: 0; width: 3px; background: #514d8f; content: ""; }
+.public-mission p { margin: 0; font-size: clamp(.52rem, .72vw, .62rem); line-height: 1.4; }
+.public-mission-status { display: flex; width: calc(100% - 1rem); height: 1.55rem; flex: 0 0 auto; align-self: center; justify-content: space-between; gap: .65rem; margin-top: .7rem; margin-bottom: 0; font-size: clamp(.5rem, .75vw, .64rem); }
+.public-mission-status span, .public-mission-status strong { display: grid; min-width: 0; flex: 1; place-items: center; border: 2px solid #4f5658; background: #98d3df; padding: .2rem .5rem; color: #304147; box-shadow: inset 2px 2px 0 #d9f4f7, inset -2px -2px 0 #5d8d96, 2px 2px 0 rgb(44 39 68 / 35%); }
+.public-mission-status strong { flex: 0 0 4.8rem; border-color: #684b60; background: #d99ac2; color: #543246; box-shadow: inset 2px 2px 0 #f5d5e9, inset -2px -2px 0 #9d6689, 2px 2px 0 rgb(44 39 68 / 35%); }
+.public-play { grid-column: 1; grid-row: 3; align-self: center; justify-self: center; width: min(125%, 25rem); border: 0; background: transparent; padding: 0; }
+.public-play img { width: 100%; filter: drop-shadow(5px 5px 0 rgb(27 16 67 / 40%)); }
+.public-browser { position: relative; min-width: 0; grid-column: 2; grid-row: 1 / 4; align-self: center; justify-self: end; width: min(100%, 131.2dvh); height: auto; max-height: 82dvh; aspect-ratio: 8 / 5; overflow: hidden; }
+.public-browser-frame { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: fill; image-rendering: pixelated; }
+.public-browser::after { position: absolute; z-index: 3; right: 1%; bottom: 1%; left: 1%; height: 3.1%; border-top: 2px solid #85877c; background: #d5d8c8; content: ""; }
+.public-browser-inner { position: absolute; inset: 7.3% .8% 2.8%; display: grid; min-height: 0; grid-template-rows: 2.4rem minmax(0, 1fr); }
+.public-browser-inner > nav { display: flex; align-items: end; gap: .5rem; border-bottom: 3px solid #8e8c82; padding: 0 .8rem; }
+.public-browser-inner > nav button { height: 2.3rem; border: 0; border-bottom: 4px solid transparent; background: transparent; padding: .25rem .85rem; font-weight: 400; }
+.public-browser-inner > nav button[aria-current='page'] { border-bottom-color: #a74278; }
+.public-browser-page { min-height: 0; overflow: auto; border: 3px solid #767269; background: #f2f0e4; padding: clamp(.7rem, 1.5vw, 1.2rem); }
+.public-browser-inner > footer { align-self: center; padding-left: .35rem; font-size: .58rem; }
+.public-home-tab { display: grid; height: 100%; grid-template-columns: 1.05fr .95fr; grid-template-rows: 1fr .95fr; gap: 1rem; }
+.public-banner { width: 100%; height: auto; aspect-ratio: 16 / 9; align-self: start; object-fit: contain; object-position: center; }
+.public-intro { align-self: center; }
+.public-intro h2, .public-learn-tab h2 { margin-bottom: .7rem; font-size: clamp(1rem, 1.8vw, 1.45rem); }
+.public-intro p, .public-problem p { font-size: clamp(.65rem, 1vw, .82rem); line-height: 1.45; }
+.public-intro > div { display: flex; flex-wrap: wrap; gap: .35rem; }
+.public-intro span { display: inline-block; border: 2px solid #735269; background: #dda1c9; padding: .2rem .55rem; color: #43263c; font-size: .68rem; line-height: 1; }
+.public-problem { position: relative; padding-top: 2.15rem; }
+.public-problem h2 { position: absolute; top: 0; right: 0; left: 0; height: 1.7rem; margin: 0; border: 2px solid #47606a; background: #9ed0dc; padding: .22rem .55rem; color: #36464e; font-size: .72rem; line-height: 1; box-shadow: inset 2px 2px 0 #d6f1f5, inset -2px -2px 0 #668b94; }
+.public-stat { display: grid; align-content: center; background: #171719; padding: 1rem; color: white; }
+.public-stat strong { color: #00d9ed; font-family: var(--font-pixel); font-size: clamp(2rem, 4vw, 3.2rem); font-weight: 400; letter-spacing: .02em; line-height: 1; }
+.public-stat p { margin: .4rem 0; font-size: clamp(.7rem, 1.1vw, .95rem); font-weight: 400; line-height: 1.3; }
+.public-stat small { font-size: .5rem; }
+.public-games-tab { display: grid; height: 100%; grid-template-columns: 1fr; align-items: start; padding: 1.2rem .75rem; }
+.public-games-tab > div { display: grid; gap: .9rem; }
+.public-games-tab button { position: relative; display: grid; width: 100%; min-height: 6.2rem; grid-template-columns: 4.6rem minmax(0, 1fr) 3.1rem; grid-template-areas: "icon copy chevron"; align-items: center; gap: .8rem; overflow: hidden; border: 3px solid #4d4a5d; background: #dfdde3; padding: .55rem .55rem .55rem .75rem; text-align: left; box-shadow: inset 3px 3px 0 #fff, inset -3px -3px 0 #898593, 5px 5px 0 #37334e; }
+.public-games-tab button::before { position: absolute; top: 3px; bottom: 3px; left: 5.35rem; width: 3px; background: #908c99; box-shadow: 2px 0 0 #fff; content: ""; }
+.public-game-card-icon { position: relative; z-index: 1; width: 3.7rem; height: 3.7rem; grid-area: icon; justify-self: center; object-fit: contain; }
+.public-games-tab button span { position: relative; z-index: 1; display: grid; grid-area: copy; gap: .2rem; padding-left: .2rem; }
+.public-games-tab button strong { font-size: .9rem; }
+.public-games-tab button small { font-size: .72rem; line-height: 1.35; }
+.public-games-tab button i { display: grid; grid-area: chevron; align-self: stretch; place-items: center; border-left: 3px solid #6c687a; background: #484978; color: white; font-size: 2.25rem; font-style: normal; text-shadow: 2px 2px 0 #18162d; box-shadow: inset 2px 2px 0 #7778a8, inset -2px -2px 0 #292a50; }
+.public-learn-tab { display: grid; height: 100%; align-content: start; padding: 2.5rem 1.2rem 1.2rem; }
+.public-learn-tab h2 { margin-bottom: 1rem; color: #111; font-size: clamp(1.45rem, 2.3vw, 2rem); }
+.public-learn-tab > p { margin-bottom: 2rem; color: #111; font-size: clamp(.9rem, 1.35vw, 1.15rem); font-weight: 400; line-height: 1.45; }
+.public-learn-tab ol { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1.4rem; margin: 0; padding: 0; list-style: none; }
+.public-learn-tab li { position: relative; display: grid; min-height: 13rem; justify-items: center; border: 3px solid #6f6a67; background: #f8f5ed; padding: 1rem .75rem; text-align: center; box-shadow: inset 2px 2px 0 white; }
+.public-learn-tab li > img { width: 2.8rem; height: 2.8rem; object-fit: contain; }
+.public-learn-tab li strong { margin: .55rem 0; color: #35366f; font-size: .95rem; }
+.public-learn-tab li p { margin: 0; font-size: .78rem; line-height: 1.35; }
+.public-learn-chevron { position: absolute; top: 50%; right: -1.65rem; width: 1.8rem !important; height: auto !important; image-rendering: pixelated; transform: translateY(-50%); }
+
+@media (max-width: 44rem) and (orientation: portrait) {
+  .public-landing { min-height: 100svh; height: 100svh; grid-template-columns: 1fr; grid-template-rows: 4.8rem 8.5rem 4.3rem minmax(0, 1fr); align-content: stretch; gap: .45rem; overflow: hidden; padding: max(.45rem, env(safe-area-inset-top)) .55rem max(.45rem, env(safe-area-inset-bottom)); }
+  .public-landing-logo { width: min(62vw, 14rem); max-height: 5rem; }
+  .public-mission { width: min(82vw, 18rem); height: 100%; aspect-ratio: auto; }
+  .public-mission > div { inset: 20% 10% 9%; }
+  .public-mission h1 { margin: 0 0 .35rem; font-size: .58rem; }
+  .public-mission section { display: grid; grid-template-columns: 35% minmax(0, 1fr); grid-template-rows: minmax(0, 1fr) auto; align-items: center; gap: .15rem .35rem; padding: .25rem .35rem .2rem; text-align: left; }
+  .public-mission section > img { width: 100%; max-height: 4.8rem; grid-column: 1; grid-row: 1; }
+  .public-mission section > div:not(.public-mission-status) { width: auto; min-width: 0; grid-column: 2; grid-row: 1; }
+  .public-mission-status { width: calc(100% - .25rem); height: 1.2rem; grid-column: 1 / 3; grid-row: 2; margin: .1rem auto 0; }
+  .public-mission h2 { margin-bottom: .2rem; padding-left: .45rem; font-size: .66rem; }
+  .public-mission p { font-size: .48rem; line-height: 1.3; }
+  .public-mission-status { gap: .35rem; font-size: .45rem; }
+  .public-mission-status strong { flex-basis: 3.8rem; }
+  .public-play { width: min(90vw, 22rem); height: 100%; }
+  .public-play img { height: 100%; object-fit: contain; }
+  .public-browser { grid-column: 1; grid-row: 4; width: 100%; max-width: 32rem; height: 100%; max-height: none; aspect-ratio: auto; align-self: stretch; justify-self: center; border: 3px solid #17191a; background: #d5d8c8; box-shadow: inset 2px 2px 0 #f5f7e8, inset -2px -2px 0 #686b60, 6px 6px 0 rgb(20 15 51 / 38%); }
+  .public-browser-frame { display: none; }
+  .public-browser::before { position: absolute; top: 3px; right: 3px; left: 3px; height: 1.9rem; background: linear-gradient(90deg,#242768,#747ab4); padding: .42rem .55rem; color: white; content: '▣  Browser'; font-size: .68rem; }
+  .public-browser::after { top: .35rem; right: .45rem; bottom: auto; left: auto; width: auto; height: auto; border: 0; background: transparent; color: #171426; content: '—  □  ×'; font-size: .72rem; }
+  .public-browser-inner { inset: 2.25rem .3rem .3rem; grid-template-rows: 2.3rem minmax(0, 1fr); }
+  .public-browser-inner > nav { gap: .2rem; padding: 0 .45rem; }
+  .public-browser-inner > nav button { height: 2.15rem; padding: .25rem .55rem; font-size: .74rem; }
+  .public-browser-page { overflow: hidden; border-width: 2px; padding: .5rem; }
+  .public-browser-inner > footer { font-size: .36rem; }
+  .public-home-tab { grid-template-columns: 1fr 1fr; grid-template-rows: auto auto; align-content: start; gap: .5rem; }
+  .public-intro h2 { margin-bottom: .3rem; font-size: .82rem; }
+  .public-intro p, .public-problem p { margin-bottom: .3rem; font-size: .52rem; line-height: 1.35; }
+  .public-intro span { border-width: 1px; padding: .08rem .2rem; font-size: .38rem; }
+  .public-problem { padding-top: 1.25rem; }
+  .public-problem h2 { height: 1rem; padding: .12rem .3rem; font-size: .42rem; }
+  .public-stat { padding: .5rem; }
+  .public-stat strong { font-size: 1.8rem; }
+  .public-stat p { font-size: .56rem; }
+  .public-stat small { font-size: .4rem; }
+  .public-games-tab { position: relative; grid-template-columns: 1fr; gap: .4rem; overflow: hidden; padding: .5rem .35rem; }
+  .public-games-tab > div { height: auto; grid-template-rows: repeat(3, 4.15rem); align-content: start; gap: .45rem; }
+  .public-games-tab button { min-height: 0; height: 4.15rem; grid-template-columns: 2.2rem minmax(0, 1fr) 1.8rem; gap: .35rem; border-width: 2px; padding: .25rem .25rem .25rem .4rem; box-shadow: inset 2px 2px 0 #fff, inset -2px -2px 0 #898593, 3px 3px 0 #37334e; }
+  .public-games-tab button::before { top: 2px; bottom: 2px; left: 2.85rem; width: 2px; }
+  .public-games-tab .public-game-card-frame { width: 100%; height: 100%; }
+  .public-games-tab .public-game-card-icon { width: 2rem; height: 2rem; }
+  .public-games-tab button strong { font-size: .76rem; }
+  .public-games-tab button small { font-size: .56rem; }
+  .public-games-tab button i { border-left-width: 2px; font-size: 1.35rem; }
+  .public-learn-tab { height: 100%; min-height: 0; grid-template-rows: auto auto minmax(0, 1fr); align-content: stretch; overflow: hidden; padding: .65rem .55rem; }
+  .public-learn-tab h2 { margin-bottom: .45rem; font-size: 1.25rem; }
+  .public-learn-tab > p { margin-bottom: .8rem; font-size: .72rem; }
+  .public-learn-tab ol { min-height: 0; grid-template-columns: 1fr 1fr; grid-template-rows: repeat(2, minmax(0, 1fr)); column-gap: 2rem; row-gap: .65rem; }
+  .public-learn-tab li { min-height: 0; height: 100%; align-content: center; border-width: 2px; padding: .55rem .45rem; }
+  .public-learn-tab li > img { width: 2.4rem; height: 2.4rem; }
+  .public-learn-tab li strong { margin: .35rem 0; font-size: .76rem; }
+  .public-learn-tab li p { font-size: .58rem; line-height: 1.4; }
+  .public-learn-chevron { display: none; }
+  .public-learn-tab li:nth-child(1) .public-learn-chevron, .public-learn-tab li:nth-child(3) .public-learn-chevron { right: -1.7rem; z-index: 3; display: block; width: 1.35rem !important; filter: drop-shadow(1px 1px 0 #292752); }
+}
+
+@media (min-width: 44.01rem) and (max-width: 72rem) {
+  .public-landing { grid-template-columns: minmax(13rem, 31%) minmax(0, 1fr); grid-template-rows: 4.5rem auto 3.8rem; align-content: center; column-gap: 1rem; row-gap: .65rem; padding: 1rem; }
+  .public-landing-logo { width: min(90%, 13rem); }
+  .public-mission { width: min(90%, 14rem); }
+  .public-play { width: min(120%, 16rem); }
+  .public-browser { width: 100%; height: calc(100dvh - 2rem); max-height: none; aspect-ratio: auto; justify-self: stretch; border: 3px solid #17191a; background: #d5d8c8; box-shadow: inset 2px 2px 0 #f5f7e8, inset -2px -2px 0 #686b60, 6px 6px 0 rgb(20 15 51 / 38%); }
+  .public-browser-frame { display: none; }
+  .public-browser::before { position: absolute; top: 3px; right: 3px; left: 3px; height: 2rem; background: linear-gradient(90deg,#242768,#747ab4); padding: .42rem .55rem; color: white; content: '▣  Browser'; font-size: .72rem; }
+  .public-browser::after { top: .35rem; right: .45rem; bottom: auto; left: auto; width: auto; height: auto; border: 0; background: transparent; color: #171426; content: '—  □  ×'; font-size: .76rem; }
+  .public-browser-inner { inset: 2.35rem .35rem .35rem; grid-template-rows: 2.4rem minmax(0, 1fr); }
+  .public-browser-inner, .public-browser-page, .public-home-tab { min-width: 0; }
+  .public-banner { max-width: 100%; }
+  .public-browser-page { overflow: hidden; }
+  .public-home-tab { grid-template-rows: auto auto; align-content: start; }
+  .public-learn-tab { height: 100%; min-height: 0; grid-template-rows: auto auto minmax(0, 1fr); align-content: stretch; padding: 1.4rem 1rem; }
+  .public-learn-tab h2 { margin-bottom: .55rem; font-size: 1.55rem; }
+  .public-learn-tab > p { margin-bottom: 1rem; font-size: .9rem; }
+  .public-learn-tab ol { min-height: 0; grid-template-columns: 1fr 1fr; grid-template-rows: repeat(2, minmax(0, 1fr)); column-gap: 2.4rem; row-gap: 1rem; }
+  .public-learn-tab li { min-height: 0; height: 100%; align-content: center; padding: .8rem .7rem; }
+  .public-learn-tab li > img { width: 2.7rem; height: 2.7rem; }
+  .public-learn-tab li strong { margin: .45rem 0; font-size: .88rem; }
+  .public-learn-tab li p { font-size: .7rem; line-height: 1.4; }
+  .public-learn-chevron { display: none; }
+  .public-learn-tab li:nth-child(1) .public-learn-chevron, .public-learn-tab li:nth-child(3) .public-learn-chevron { right: -2.2rem; z-index: 4; display: block; width: 2rem !important; filter: drop-shadow(1px 1px 0 #292752); }
+}
+
+@media (min-width: 44.01rem) and (max-width: 72rem) and (max-height: 42rem) {
+  .public-learn-tab { padding-block: .8rem; }
+  .public-learn-tab h2 { font-size: 1.25rem; }
+  .public-learn-tab > p { margin-bottom: .6rem; font-size: .76rem; }
+  .public-learn-tab ol { row-gap: .65rem; }
+  .public-learn-tab li { padding: .45rem .55rem; }
+  .public-learn-tab li > img { width: 2.1rem; height: 2.1rem; }
+  .public-learn-tab li p { font-size: .6rem; }
 }
 
 @media (prefers-reduced-motion: reduce) {

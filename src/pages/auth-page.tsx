@@ -5,5 +5,5 @@ interface AuthPageProps {
 }
 
 export function AuthPage({ mode }: AuthPageProps) {
-  return <Navigate replace state={{ authMode: mode, openBrowser: true }} to="/" />;
+  return <Navigate replace state={{ authMode: mode, openBrowser: true }} to="/home" />;
 }

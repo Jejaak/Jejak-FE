@@ -251,7 +251,7 @@ export function DownloadsGame({ onExit }: { onExit?: () => void }) {
           }
           if (message.type === 'session_ended') {
             sessionRef.current = sessionRef.current ? { ...sessionRef.current, status: 'ABANDONED' } : null;
-            if (!exitingRef.current) navigate('/', { replace: true });
+            if (!exitingRef.current) navigate('/home', { replace: true });
             return;
           }
           if (message.type === 'action_error' && message.requestId) {
@@ -433,7 +433,7 @@ export function DownloadsGame({ onExit }: { onExit?: () => void }) {
         sessionRef.current = { ...currentSession, status: 'ABANDONED' };
       }
       if (onExit) onExit();
-      else navigate('/', { replace: true });
+      else navigate('/home', { replace: true });
     } catch (exitError) {
       exitingRef.current = false;
       setExiting(false);
@@ -459,7 +459,7 @@ export function DownloadsGame({ onExit }: { onExit?: () => void }) {
   }
 
   if (loading || !session) {
-    return <GameLoadingWindow error={error} message={publicId ? 'Memuat sesi unduhan…' : 'Membuat sesi unduhan…'} onBack={() => navigate('/')} onRetry={error ? () => window.location.reload() : undefined} title="VIRUS.EXE" />;
+    return <GameLoadingWindow error={error} message={publicId ? 'Memuat sesi unduhan…' : 'Membuat sesi unduhan…'} onBack={() => navigate('/home')} onRetry={error ? () => window.location.reload() : undefined} title="VIRUS.EXE" />;
   }
 
   if (result && terminalFeedbackReady) {

@@ -7,6 +7,7 @@ import { PrivacyGame } from './games/privacy-game.tsx';
 import { authClient } from './lib/auth-client.ts';
 import { AuthPage } from './pages/auth-page.tsx';
 import { LandingPage } from './pages/landing-page.tsx';
+import { PublicLandingPage } from './pages/public-landing-page.tsx';
 
 function ProtectedRoute({ children }: { children: ReactNode }) {
   const session = authClient.useSession();
@@ -28,10 +29,10 @@ export function App() {
       <a className="skip-link" href="#main-route">Lewati ke konten</a>
       <div id="main-route">
         <Routes>
-          <Route element={<LandingPage />} path="/" />
+          <Route element={<PublicLandingPage />} path="/" />
           <Route element={<AuthPage mode="login" />} path="/login" />
           <Route element={<AuthPage mode="register" />} path="/register" />
-          <Route element={<Navigate replace to="/" />} path="/home" />
+          <Route element={<LandingPage />} path="/home" />
           <Route element={<ProtectedRoute><PrivacyGame /></ProtectedRoute>} path="/game/privacy" />
           <Route element={<ProtectedRoute><PrivacyGame /></ProtectedRoute>} path="/game/privacy/:publicId" />
           <Route element={<ProtectedRoute><PhishingGame /></ProtectedRoute>} path="/game/phishing" />

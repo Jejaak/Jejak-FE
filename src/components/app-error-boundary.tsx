@@ -23,7 +23,7 @@ export class AppErrorBoundary extends Component<{ children: ReactNode }, AppErro
             <div className="game-loading-title"><span aria-hidden="true">▤</span><strong>JEJAK</strong><span aria-hidden="true">— □ ×</span></div>
             <div className="game-loading-content">
               <img alt="" aria-hidden="true" src="/assets/Shared/Mascots/Mascot_Shocked.png" />
-              <div><h1>Aplikasi bermasalah</h1><p>Halaman tidak dapat ditampilkan pada perangkat ini.</p><div className="game-loading-actions"><button onClick={() => window.location.reload()} type="button">Muat ulang</button><button onClick={() => window.location.assign('/')} type="button">Kembali</button></div></div>
+              <div><h1>Aplikasi bermasalah</h1><p>Halaman tidak dapat ditampilkan pada perangkat ini.</p><div className="game-loading-actions"><button onClick={() => window.location.reload()} type="button">Muat ulang</button><button onClick={() => window.location.assign('/home')} type="button">Kembali</button></div></div>
             </div>
             <div className="game-loading-status">Error</div>
           </section>
