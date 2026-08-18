@@ -97,6 +97,7 @@ export function DownloadsGame({ onExit }: { onExit?: () => void }) {
   const pendingFilesRef = useRef(new Map<string, VirusFile>());
   const socketRef = useRef<WebSocket | null>(null);
   const mascotShakeTimeoutRef = useRef<number | null>(null);
+  const hitAudioRef = useRef<HTMLAudioElement | null>(null);
   const exitingRef = useRef(false);
   const hiddenAtRef = useRef<number | null>(null);
   const gamePausedRef = useRef(false);
@@ -319,6 +320,12 @@ export function DownloadsGame({ onExit }: { onExit?: () => void }) {
     pendingFilesRef.current.set(file.id, file);
     const nextSafeCount = Math.min(safeTarget, displaySafeCountRef.current + effect.safe);
     const nextMistakes = Math.min(maxMistakes, displayMistakesRef.current + effect.mistakes);
+    if (effect.mistakes) {
+      const hitAudio = hitAudioRef.current ?? new Audio('/assets/audio/hit.mp3');
+      hitAudioRef.current = hitAudio;
+      hitAudio.currentTime = 0;
+      void hitAudio.play().catch(() => undefined);
+    }
     if (dangerousHit) {
       if (mascotShakeTimeoutRef.current !== null) window.clearTimeout(mascotShakeTimeoutRef.current);
       if (nextMistakes >= maxMistakes && !reduceMotion) setTerminalFeedbackReady(false);

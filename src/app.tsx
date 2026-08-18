@@ -1,4 +1,4 @@
-import { useEffect, type ReactNode } from 'react';
+import { useEffect, useRef, type ReactNode } from 'react';
 import { Navigate, Route, Routes, useLocation } from 'react-router';
 import { GameLoadingWindow } from './components/game-loading-window.tsx';
 import { DownloadsGame } from './games/downloads-game.tsx';
@@ -19,6 +19,22 @@ function ProtectedRoute({ children }: { children: ReactNode }) {
 
 export function App() {
   const location = useLocation();
+  const buttonClickAudioRef = useRef<HTMLAudioElement | null>(null);
+
+  useEffect(() => {
+    function handleButtonClick(event: MouseEvent) {
+      if (!(event.target instanceof Element)) return;
+      const button = event.target.closest('button');
+      if (!button || button.disabled) return;
+      const audio = buttonClickAudioRef.current ?? new Audio('/assets/Audio/buttonclick.mp3');
+      buttonClickAudioRef.current = audio;
+      audio.currentTime = 0;
+      void audio.play().catch(() => undefined);
+    }
+
+    document.addEventListener('click', handleButtonClick);
+    return () => document.removeEventListener('click', handleButtonClick);
+  }, []);
 
   useEffect(() => {
     document.querySelector<HTMLElement>('main')?.focus({ preventScroll: true });

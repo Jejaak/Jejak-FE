@@ -54,6 +54,8 @@ export function PhishingGame({ onExit }: { onExit?: () => void }) {
   const tutorialWasOpenRef = useRef(false);
   const messageButtonRefs = useRef<Array<HTMLButtonElement | null>>([]);
   const feedbackButtonRef = useRef<HTMLButtonElement>(null);
+  const correctAnswerAudioRef = useRef<HTMLAudioElement | null>(null);
+  const wrongAnswerAudioRef = useRef<HTMLAudioElement | null>(null);
   const exitCancelRef = useRef<HTMLButtonElement>(null);
   const inboxTriggerRef = useRef<HTMLButtonElement>(null);
   const exitTriggerRef = useRef<HTMLButtonElement>(null);
@@ -442,6 +444,11 @@ export function PhishingGame({ onExit }: { onExit?: () => void }) {
     try {
       const answerKey = answerKeysRef.current[email.id] ??= `phishing-answer:${crypto.randomUUID()}`;
       const result = await submitAnswerRealtime(answerKey, email.id, selectedRegions, selectedRegions.length > 0);
+      const answerAudioRef = result.correct ? correctAnswerAudioRef : wrongAnswerAudioRef;
+      const answerAudio = answerAudioRef.current ?? new Audio(`/assets/Audio/${result.correct ? 'correctanswer' : 'wronganswer'}.mp3`);
+      answerAudioRef.current = answerAudio;
+      answerAudio.currentTime = 0;
+      void answerAudio.play().catch(() => undefined);
       latestAnsweredCountRef.current = Math.max(latestAnsweredCountRef.current, result.answeredCount);
       setAnswers((current) => ({ ...current, [email.id]: { result, selectedRegions } }));
       setSessionState((current) => current ? {

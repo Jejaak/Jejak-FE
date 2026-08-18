@@ -34,6 +34,8 @@ export function PrivacyGame({ onExit }: { onExit?: () => void }) {
   const [gameSession, setGameSession] = useState<PrivacySession | null>(null);
   const [scenarioIndex, setScenarioIndex] = useState(0);
   const [answerResult, setAnswerResult] = useState<PrivacyAnswerResult | null>(null);
+  const correctAnswerAudioRef = useRef<HTMLAudioElement | null>(null);
+  const wrongAnswerAudioRef = useRef<HTMLAudioElement | null>(null);
   const [tutorialStep, setTutorialStep] = useState<number | null>(null);
   const [exitConfirmOpen, setExitConfirmOpen] = useState(false);
   const [infoOpen, setInfoOpen] = useState(false);
@@ -242,6 +244,11 @@ export function PrivacyGame({ onExit }: { onExit?: () => void }) {
       const result = socketState === 'connected'
         ? await answerViaSocket(requestId, question.id, choice).catch(() => answerPrivacyQuestion(gameSession.id, question.id, choice, idempotencyKey))
         : await answerPrivacyQuestion(gameSession.id, question.id, choice, idempotencyKey);
+      const answerAudioRef = result.correct ? correctAnswerAudioRef : wrongAnswerAudioRef;
+      const answerAudio = answerAudioRef.current ?? new Audio(`/assets/Audio/${result.correct ? 'correctanswer' : 'wronganswer'}.mp3`);
+      answerAudioRef.current = answerAudio;
+      answerAudio.currentTime = 0;
+      void answerAudio.play().catch(() => undefined);
       setAnswerResult(result);
       setToast(null);
       setGameSession((current) => current ? {
