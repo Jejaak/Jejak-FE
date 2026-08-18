@@ -321,7 +321,7 @@ export function DownloadsGame({ onExit }: { onExit?: () => void }) {
     const nextSafeCount = Math.min(safeTarget, displaySafeCountRef.current + effect.safe);
     const nextMistakes = Math.min(maxMistakes, displayMistakesRef.current + effect.mistakes);
     if (effect.mistakes) {
-      const hitAudio = hitAudioRef.current ?? new Audio('/assets/audio/hit.mp3');
+      const hitAudio = hitAudioRef.current ?? new Audio('/assets/Audio/hit.mp3');
       hitAudioRef.current = hitAudio;
       hitAudio.currentTime = 0;
       void hitAudio.play().catch(() => undefined);
