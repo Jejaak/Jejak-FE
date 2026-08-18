@@ -276,13 +276,18 @@ export function PrivacyGame({ onExit }: { onExit?: () => void }) {
     setInfoOpen(false);
   }
 
-  function exitGame() {
+  async function exitGame() {
+    if (intentionalExitRef.current) return;
     intentionalExitRef.current = true;
     const exit = onExit ?? (() => navigate('/home'));
-    if (gameSession?.status === 'ACTIVE') {
-      void abandonPrivacySession(gameSession.id).catch(() => undefined);
+    try {
+      if (gameSession?.status === 'ACTIVE') await abandonPrivacySession(gameSession.id);
+      exit();
+    } catch {
+      intentionalExitRef.current = false;
+      setExitConfirmOpen(false);
+      setError('Sesi belum dapat ditutup. Periksa koneksi lalu coba lagi.');
     }
-    exit();
   }
 
   if (loading) return <GameLoadingWindow message={publicId ? 'Memuat sesi permainan…' : 'Membuat sesi permainan…'} title="PRIVASI.EXE" />;

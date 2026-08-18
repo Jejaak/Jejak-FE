@@ -372,7 +372,9 @@ button:disabled { cursor: not-allowed; filter: grayscale(.65); opacity: .62; }
 .virus-result-primary { background: var(--color-yellow); color: var(--color-ink); }
 .virus-result-secondary { background: #f5f2e8; }
 .virus-tutorial-open .virus-download-area, .virus-tutorial-open .virus-target-mascot, .virus-tutorial-open .virus-progress-window, .virus-tutorial-open .virus-error { visibility: hidden; }
-.virus-tutorial-backdrop { position: fixed; z-index: 100; inset: 0; display: block; width: 100%; height: 100%; border: 0; background: rgb(6 7 13 / 76%); padding: 0; color: white; text-align: left; }
+.virus-tutorial-backdrop { position: fixed; z-index: 100; top: 0; left: 0; display: block; width: 100vw !important; min-width: 100vw; max-width: none !important; height: 100dvh !important; min-height: 100dvh; border: 0; background: rgb(6 7 13 / 76%); padding: 0; color: white; text-align: left; }
+.virus-tutorial-backdrop > * { z-index: 1; }
+.virus-tutorial-click-layer { position: absolute; z-index: 10; inset: 0; width: 100%; height: 100%; border: 0; background: transparent; padding: 0; }
 .virus-tutorial-panel { position: absolute; right: 50%; bottom: 2.5%; display: grid; width: min(calc(100vw - 2rem), 48rem); grid-template-columns: 11rem minmax(0, 1fr); align-items: end; transform: translateX(50%); }
 .virus-tutorial-mascot { position: relative; z-index: 2; width: 12rem; max-height: 13rem; object-fit: contain; object-position: bottom; transform: translate(.7rem, .8rem); }
 .virus-tutorial-copy { position: relative; min-height: 8rem; margin: 0 0 .7rem -1rem; border: 4px solid #bfc4b4; background: #151923; padding: 2rem 1.25rem 1.4rem; color: white; box-shadow: inset 3px 3px 0 white, inset -3px -3px 0 #51584b, 6px 6px 0 rgb(0 0 0 / 45%); }
@@ -389,14 +391,20 @@ button:disabled { cursor: not-allowed; filter: grayscale(.65); opacity: .62; }
 .virus-tutorial-delete-marker img:last-child { position: absolute; right: -52%; bottom: -38%; width: 68%; height: auto; filter: drop-shadow(2px 2px 0 #000); }
 .virus-tutorial-safe .virus-tutorial-files > div:first-child, .virus-tutorial-finish .virus-tutorial-files > div:first-child { display: none; }
 .virus-tutorial-safe .virus-tutorial-files, .virus-tutorial-finish .virus-tutorial-files { left: 50%; gap: 0; }
-.virus-tutorial-examples { position: absolute; top: 12%; right: 50%; display: grid; width: min(calc(100% - 3rem), 68rem); grid-template-columns: 1fr 1fr; gap: 2.5rem; transform: translateX(50%); }
-.virus-example-group { position: relative; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .8rem; }
+.virus-extension-examples { position: absolute; top: 12%; right: 50%; display: grid; width: min(calc(100% - 3rem), 68rem); grid-template-columns: 1fr 1fr; gap: 2.5rem; transform: translateX(50%); }
+.virus-example-group { position: relative; display: grid; min-height: 12rem; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: .35rem 1rem; }
+.virus-example-group > div:first-child { grid-column: 1 / 3; grid-row: 1; }
+.virus-example-group > div:nth-child(2) { grid-column: 1; grid-row: 2; }
+.virus-example-group > div:nth-child(3) { grid-column: 2; grid-row: 2; }
 .virus-example-group:first-child::after { position: absolute; top: 0; right: -1.3rem; bottom: 0; border-right: 3px dashed #d73c57; content: ""; }
 .virus-example-group > div { display: grid; min-width: 0; justify-items: center; gap: .35rem; color: white; text-align: center; text-shadow: 2px 2px 0 #000; }
 .virus-example-icon { position: relative; display: block; width: clamp(3.5rem, 7vw, 5.5rem); height: clamp(3.5rem, 7vw, 5.5rem); }
 .virus-example-icon > img:first-child { width: 100%; height: 100%; object-fit: contain; }
 .virus-example-x { position: absolute; z-index: 2; inset: -.35rem; width: calc(100% + .7rem); height: calc(100% + .7rem); object-fit: contain; }
 .virus-example-group strong { max-width: 100%; overflow-wrap: anywhere; font-size: clamp(.5rem, .85vw, .72rem); }
+.virus-extension-examples + .virus-tutorial-panel { bottom: 1rem; width: min(calc(100vw - 2rem), 46rem); grid-template-columns: 8rem minmax(0, 1fr); }
+.virus-extension-examples + .virus-tutorial-panel .virus-tutorial-mascot { width: 9rem; max-height: 10rem; }
+.virus-extension-examples + .virus-tutorial-panel .virus-tutorial-copy { min-height: 7.5rem; }
 .loading-screen { display: grid; min-height: 100dvh; place-items: center; background: var(--color-purple-dark); color: white; }
 .game-loading-screen { display: grid; min-height: 100dvh; place-items: center; padding: max(1rem, env(safe-area-inset-top)) max(1rem, env(safe-area-inset-right)) max(1rem, env(safe-area-inset-bottom)) max(1rem, env(safe-area-inset-left)); background: #756bb6 url('/assets/Home/Background.png') center / cover; color: #171426; }
 .game-loading-window { width: min(100%, 36rem); border: 4px solid #171426; background: #d9dccd; box-shadow: inset 3px 3px 0 white, inset -3px -3px 0 #717468, 9px 9px 0 rgb(8 7 20 / 45%); }
@@ -643,12 +651,15 @@ button:disabled { cursor: not-allowed; filter: grayscale(.65); opacity: .62; }
   .virus-tutorial-copy h2 { font-size: .78rem; line-height: 1.35; }
   .virus-tutorial-copy > span:last-child { right: .6rem; bottom: .35rem; font-size: .44rem; }
   .virus-tutorial-delete-marker { width: 3.5rem; height: 3.5rem; }
-  .virus-tutorial-examples { top: 8%; width: calc(100% - 1rem); gap: 1rem; }
-  .virus-example-group { grid-template-columns: 1fr; gap: .25rem; }
+  .virus-extension-examples { top: 8%; width: calc(100% - 1rem); gap: 1rem; }
+  .virus-example-group { min-height: 9.5rem; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: .15rem .35rem; }
   .virus-example-group:first-child::after { right: -.55rem; }
-  .virus-example-group > div { grid-template-columns: 3.1rem minmax(0, 1fr); align-items: center; justify-items: start; text-align: left; }
-  .virus-example-icon { width: 3rem; height: 3rem; }
-  .virus-example-group strong { font-size: .48rem; }
+  .virus-example-group > div { display: grid; grid-template-columns: 1fr; align-items: center; justify-items: center; text-align: center; }
+  .virus-example-icon { width: 2.7rem; height: 2.7rem; }
+  .virus-example-group strong { font-size: .42rem; }
+  .virus-extension-examples + .virus-tutorial-panel { right: .5rem; bottom: max(.5rem, env(safe-area-inset-bottom)); left: .5rem; width: auto; grid-template-columns: 4.5rem minmax(0, 1fr); transform: none; }
+  .virus-extension-examples + .virus-tutorial-panel .virus-tutorial-mascot { width: 6.5rem; max-height: 8rem; }
+  .virus-extension-examples + .virus-tutorial-panel .virus-tutorial-copy { min-height: 6.8rem; }
   .virus-final-backdrop { align-items: center; padding: max(.75rem, env(safe-area-inset-top)) max(.75rem, env(safe-area-inset-right)) max(.75rem, env(safe-area-inset-bottom)) max(.75rem, env(safe-area-inset-left)); }
   .virus-final-backdrop .privacy-answer-popup { width: 100%; grid-template-columns: 6.5rem minmax(0, 1fr); align-items: center; text-align: left; }
   .virus-final-backdrop .privacy-answer-popup > img { width: 7rem; margin: 0; transform: translate(-.5rem, .5rem); }

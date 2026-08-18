@@ -41,10 +41,10 @@ const tutorialSlides = [
   { focus: 'warning', mascot: '/assets/Shared/Mascots/Mascot_Neutral.png', content: <>Tidak semua file aman, bisa aja <strong className="tutorial-pink">virus yang menyamar.</strong></> },
   { focus: 'inspect', mascot: '/assets/Shared/Mascots/Mascot_Neutral.png', content: <>Coba perhatikan <strong className="tutorial-cyan">nama dan ekstensi file</strong> dengan teliti.</> },
   { focus: 'suspicious', mascot: '/assets/Shared/Mascots/Mascot_Neutral.png', content: <>Jika ada file yang terlihat <strong className="tutorial-pink">mencurigakan...</strong></> },
-  { focus: 'delete', mascot: '/assets/Shared/Mascots/Mascot_Neutral.png', content: <><strong className="tutorial-cyan">Klik</strong> untuk menghapusnya!</> },
-  { focus: 'safe', mascot: '/assets/Shared/Mascots/Mascot_Happy.png', content: <>Tapi jangan hapus file yang aman!</> },
-  { focus: 'finish', mascot: '/assets/Shared/Mascots/Mascot_Happy.png', content: <>Good luck! Lindungi komputer dari virus.</> },
   { focus: 'examples', mascot: '/assets/Shared/Mascots/Mascot_Neutral.png', content: <><strong className="tutorial-cyan">KLIK</strong> file .exe, .bat, atau .msi untuk menghapusnya. Biarkan .pdf, .docx, dan .txt tetap aman.</> },
+  { focus: 'safe', mascot: '/assets/Shared/Mascots/Mascot_Happy.png', content: <>Tapi jangan hapus file yang aman!</> },
+  { focus: 'reminder', mascot: '/assets/Shared/Mascots/Mascot_Neutral.png', content: <>Tetap periksa <strong className="tutorial-cyan">nama file dan sumbernya</strong>, walaupun ekstensinya terlihat aman.</> },
+  { focus: 'finish', mascot: '/assets/Shared/Mascots/Mascot_Happy.png', content: <>Good luck! Lindungi komputer dari virus.</> },
 ] as const;
 
 async function startVirusSession(): Promise<VirusSession> {
@@ -91,6 +91,7 @@ export function DownloadsGame({ onExit }: { onExit?: () => void }) {
   const displayMistakesRef = useRef(0);
   const terminalRef = useRef(false);
   const tutorialAutoOpenedRef = useRef(false);
+  const creatingSessionRef = useRef(false);
   const activeFileIdsRef = useRef<string[]>([]);
   const fileStartedAtRef = useRef(new Map<string, number>());
   const resolvingFileIdsRef = useRef(new Set<string>());
@@ -169,15 +170,19 @@ export function DownloadsGame({ onExit }: { onExit?: () => void }) {
     if (!auth.data) return;
     if (!publicId) {
       tutorialAutoOpenedRef.current = false;
+      if (creatingSessionRef.current) return;
+      creatingSessionRef.current = true;
       void startVirusSession()
         .then((createdSession) => navigate(`/game/downloads/${createdSession.publicId}`, { replace: true }))
         .catch((loadError: unknown) => {
+          creatingSessionRef.current = false;
           setError(loadError instanceof Error ? loadError.message : 'Sesi Virus tidak dapat dibuat.');
           setLoading(false);
         });
       return;
     }
 
+    creatingSessionRef.current = false;
     let active = true;
     void getActiveVirusSession(publicId)
       .then((loadedSession) => {
@@ -293,8 +298,6 @@ export function DownloadsGame({ onExit }: { onExit?: () => void }) {
 
     return () => {
       active = false;
-      const currentSession = sessionRef.current;
-      if (currentSession?.status === 'ACTIVE' && !exitingRef.current) void abandonVirusSession(currentSession.id, true);
       gamePausedRef.current = false;
       pauseStartedAtRef.current = null;
       exitingRef.current = false;
@@ -436,7 +439,8 @@ export function DownloadsGame({ onExit }: { onExit?: () => void }) {
     const currentSession = sessionRef.current;
     try {
       if (currentSession?.status === 'ACTIVE') {
-        if (socketRef.current?.readyState === WebSocket.OPEN) socketRef.current.send(JSON.stringify({ type: 'abandon' }));
+        socketRef.current?.close(1000, 'Player exited');
+        socketRef.current = null;
         await abandonVirusSession(currentSession.id);
         sessionRef.current = { ...currentSession, status: 'ABANDONED' };
       }
@@ -536,9 +540,10 @@ export function DownloadsGame({ onExit }: { onExit?: () => void }) {
       {exitConfirmOpen && <div className="privacy-exit-backdrop"><section aria-labelledby="virus-exit-title" aria-modal="true" className="privacy-exit-dialog" role="dialog"><img alt="Maskot JEJAK" src="/assets/Shared/Mascots/Mascot_Shocked.png" /><div><h2 id="virus-exit-title">Keluar dari permainan?</h2><p>Progres sesi Virus ini akan dihapus dan ID sesi tidak dapat digunakan kembali.</p><div><button disabled={exiting} onClick={() => void exitGame()} type="button">{exiting ? 'Menutup sesi...' : 'Ya, keluar'}</button><button disabled={exiting} onClick={closeExitConfirm} type="button">Lanjut bermain</button></div></div></section></div>}
 
       {tutorial && (
-        <button aria-label={`Lanjutkan tutorial, langkah ${(tutorialStep ?? 0) + 1} dari ${tutorialSlides.length}`} className={`virus-tutorial-backdrop virus-tutorial-${tutorial.focus}`} onClick={advanceTutorial} type="button">
+        <div aria-label={`Tutorial langkah ${(tutorialStep ?? 0) + 1} dari ${tutorialSlides.length}`} aria-modal="true" className={`virus-tutorial-backdrop virus-tutorial-${tutorial.focus}`} role="dialog">
+          <button aria-label={`Lanjutkan tutorial, langkah ${(tutorialStep ?? 0) + 1} dari ${tutorialSlides.length}`} className="virus-tutorial-click-layer" onClick={advanceTutorial} type="button" />
           {tutorial.focus === 'examples' ? (
-            <div aria-hidden="true" className="virus-tutorial-examples">
+            <div aria-hidden="true" className="virus-extension-examples">
               <div className="virus-example-group is-dangerous">
                 {[['ROBUX-GRATIS.exe', 'FileZip.png'], ['GAME-SELAMAT.bat', 'FileText.png'], ['GIFT-77.msi', 'FileText.png']].map(([name, asset]) => <div key={name}><span className="virus-example-icon"><img src={`/assets/Shared/Game/${asset}`} /><img className="virus-example-x" src="/assets/Shared/Game/x.png" /></span><strong>{name}</strong></div>)}
               </div>
@@ -548,7 +553,7 @@ export function DownloadsGame({ onExit }: { onExit?: () => void }) {
             </div>
           ) : (
             <div aria-hidden="true" className="virus-tutorial-files">
-              <div className="virus-tutorial-bad-file"><img src="/assets/Shared/Game/FileZip.png" /><span>ROBUX-GRATIS.exe</span>{tutorial.focus === 'delete' && <span className="virus-tutorial-delete-marker"><img src="/assets/Shared/Game/x.png" /><img src="/assets/Shared/Tutorial/Cursor.png" /></span>}</div>
+              <div className="virus-tutorial-bad-file"><img src="/assets/Shared/Game/FileZip.png" /><span>ROBUX-GRATIS.exe</span></div>
               <div><img src="/assets/Shared/Game/FileText.png" /><span>tugas-sekolah.docx</span></div>
             </div>
           )}
@@ -560,7 +565,7 @@ export function DownloadsGame({ onExit }: { onExit?: () => void }) {
               <span>{(tutorialStep ?? 0) + 1}/{tutorialSlides.length} · Klik di mana saja untuk lanjut</span>
             </div>
           </section>
-        </button>
+        </div>
       )}
     </main>
   );
