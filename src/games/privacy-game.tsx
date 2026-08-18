@@ -247,6 +247,7 @@ export function PrivacyGame({ onExit }: { onExit?: () => void }) {
       const answerAudioRef = result.correct ? correctAnswerAudioRef : wrongAnswerAudioRef;
       const answerAudio = answerAudioRef.current ?? new Audio(`/assets/Audio/${result.correct ? 'correctanswer' : 'wronganswer'}.mp3`);
       answerAudioRef.current = answerAudio;
+      if (!result.correct) answerAudio.volume = 0.7;
       answerAudio.currentTime = 0;
       void answerAudio.play().catch(() => undefined);
       setAnswerResult(result);
