@@ -44,6 +44,7 @@ const tutorialSlides = [
   { focus: 'delete', mascot: '/assets/Shared/Mascots/Mascot_Neutral.png', content: <><strong className="tutorial-cyan">Klik</strong> untuk menghapusnya!</> },
   { focus: 'safe', mascot: '/assets/Shared/Mascots/Mascot_Happy.png', content: <>Tapi jangan hapus file yang aman!</> },
   { focus: 'finish', mascot: '/assets/Shared/Mascots/Mascot_Happy.png', content: <>Good luck! Lindungi komputer dari virus.</> },
+  { focus: 'examples', mascot: '/assets/Shared/Mascots/Mascot_Neutral.png', content: <><strong className="tutorial-cyan">KLIK</strong> file .exe, .bat, atau .msi untuk menghapusnya. Biarkan .pdf, .docx, dan .txt tetap aman.</> },
 ] as const;
 
 async function startVirusSession(): Promise<VirusSession> {
@@ -528,17 +529,28 @@ export function DownloadsGame({ onExit }: { onExit?: () => void }) {
       {exitConfirmOpen && <div className="privacy-exit-backdrop"><section aria-labelledby="virus-exit-title" aria-modal="true" className="privacy-exit-dialog" role="dialog"><img alt="Maskot JEJAK" src="/assets/Shared/Mascots/Mascot_Shocked.png" /><div><h2 id="virus-exit-title">Keluar dari permainan?</h2><p>Progres sesi Virus ini akan dihapus dan ID sesi tidak dapat digunakan kembali.</p><div><button disabled={exiting} onClick={() => void exitGame()} type="button">{exiting ? 'Menutup sesi...' : 'Ya, keluar'}</button><button disabled={exiting} onClick={closeExitConfirm} type="button">Lanjut bermain</button></div></div></section></div>}
 
       {tutorial && (
-        <button aria-label={`Lanjutkan tutorial, langkah ${(tutorialStep ?? 0) + 1} dari 7`} className={`virus-tutorial-backdrop virus-tutorial-${tutorial.focus}`} onClick={advanceTutorial} type="button">
-          <div aria-hidden="true" className="virus-tutorial-files">
-            <div className="virus-tutorial-bad-file"><img src="/assets/Shared/Game/FileZip.png" /><span>ROBUX-GRATIS.exe</span>{tutorial.focus === 'delete' && <span className="virus-tutorial-delete-marker"><img src="/assets/Shared/Game/x.png" /><img src="/assets/Shared/Tutorial/Cursor.png" /></span>}</div>
-            <div><img src="/assets/Shared/Game/FileText.png" /><span>tugas-sekolah.docx</span></div>
-          </div>
+        <button aria-label={`Lanjutkan tutorial, langkah ${(tutorialStep ?? 0) + 1} dari ${tutorialSlides.length}`} className={`virus-tutorial-backdrop virus-tutorial-${tutorial.focus}`} onClick={advanceTutorial} type="button">
+          {tutorial.focus === 'examples' ? (
+            <div aria-hidden="true" className="virus-tutorial-examples">
+              <div className="virus-example-group is-dangerous">
+                {[['ROBUX-GRATIS.exe', 'FileZip.png'], ['GAME-SELAMAT.bat', 'FileText.png'], ['GIFT-77.msi', 'FileText.png']].map(([name, asset]) => <div key={name}><span className="virus-example-icon"><img src={`/assets/Shared/Game/${asset}`} /><img className="virus-example-x" src="/assets/Shared/Game/x.png" /></span><strong>{name}</strong></div>)}
+              </div>
+              <div className="virus-example-group is-safe">
+                {[['tugas-sekolah.pdf', 'FileText.png'], ['dokumen.docx', 'FileText.png'], ['catatan.txt', 'FileText.png']].map(([name, asset]) => <div key={name}><span className="virus-example-icon"><img src={`/assets/Shared/Game/${asset}`} /></span><strong>{name}</strong></div>)}
+              </div>
+            </div>
+          ) : (
+            <div aria-hidden="true" className="virus-tutorial-files">
+              <div className="virus-tutorial-bad-file"><img src="/assets/Shared/Game/FileZip.png" /><span>ROBUX-GRATIS.exe</span>{tutorial.focus === 'delete' && <span className="virus-tutorial-delete-marker"><img src="/assets/Shared/Game/x.png" /><img src="/assets/Shared/Tutorial/Cursor.png" /></span>}</div>
+              <div><img src="/assets/Shared/Game/FileText.png" /><span>tugas-sekolah.docx</span></div>
+            </div>
+          )}
           <section aria-labelledby="virus-tutorial-title" className="virus-tutorial-panel">
             <img alt="Maskot JEJAK" className="virus-tutorial-mascot" src={tutorial.mascot} />
             <div className="virus-tutorial-copy">
               <span aria-hidden="true" className="virus-tutorial-window-bar">□ □ ×</span>
               <h2 id="virus-tutorial-title">{tutorial.content}</h2>
-              <span>{(tutorialStep ?? 0) + 1}/7 · Klik di mana saja untuk lanjut</span>
+              <span>{(tutorialStep ?? 0) + 1}/{tutorialSlides.length} · Klik di mana saja untuk lanjut</span>
             </div>
           </section>
         </button>

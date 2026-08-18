@@ -65,16 +65,13 @@ button:disabled { cursor: not-allowed; filter: grayscale(.65); opacity: .62; }
 .desktop-onboarding-cyan { color: #00d9ed; }
 .desktop-onboarding-pink { color: #ff38b4; }
 .desktop-onboarding-hint { position: absolute; z-index: 4; right: max(1rem, env(safe-area-inset-right)); bottom: calc(3.8rem + env(safe-area-inset-bottom)); color: #f7f7ef; font-size: .7rem; font-weight: 900; text-shadow: 2px 2px 0 #090812; }
-.desktop-onboarding-step-2 .desktop-taskbar { z-index: 270; pointer-events: none; }
-.desktop-onboarding-step-2 .desktop-taskbar button:not(.desktop-task-browser) { filter: brightness(.32); opacity: .5; }
-.desktop-onboarding-step-2 .desktop-task-browser { position: relative; z-index: 271; border-color: #ffe33d; background: #f7f7ef; outline: 4px solid #ffe33d; outline-offset: 1px; filter: none; opacity: 1; box-shadow: inset 2px 2px 0 white, inset -2px -2px 0 #717468, 0 0 12px rgb(255 227 61 / 70%); }
-.desktop-onboarding-step-3 section[style*="z-index: 320"] { z-index: 320 !important; }
-.desktop-onboarding-browser { box-sizing: border-box; cursor: pointer; touch-action: manipulation; transform: translateY(-50%) !important; }
-.desktop-onboarding-step-5 .desktop-game-shortcuts { z-index: 270; outline: 4px solid #ffe33d; outline-offset: 2px; }
-.desktop-onboarding-step-6 .desktop-game-shortcut-privacy, .desktop-onboarding-step-7 .desktop-game-shortcut-privacy, .desktop-onboarding-step-8 .desktop-game-shortcut-phishing, .desktop-onboarding-step-9 .desktop-game-shortcut-phishing, .desktop-onboarding-step-10 .desktop-game-shortcut-virus, .desktop-onboarding-step-11 .desktop-game-shortcut-virus { position: relative; z-index: 270; outline: 4px solid #ffe33d; outline-offset: -2px; background: rgb(35 29 94 / 35%); }
-.desktop-onboarding-step-5 .desktop-game-shortcuts, .desktop-onboarding-step-6 .desktop-game-shortcuts, .desktop-onboarding-step-7 .desktop-game-shortcuts, .desktop-onboarding-step-8 .desktop-game-shortcuts, .desktop-onboarding-step-9 .desktop-game-shortcuts, .desktop-onboarding-step-10 .desktop-game-shortcuts, .desktop-onboarding-step-11 .desktop-game-shortcuts { z-index: 270; position: absolute; pointer-events: none; }
-.desktop-onboarding-step-6 .desktop-game-shortcut:not(.desktop-game-shortcut-privacy), .desktop-onboarding-step-7 .desktop-game-shortcut:not(.desktop-game-shortcut-privacy), .desktop-onboarding-step-8 .desktop-game-shortcut:not(.desktop-game-shortcut-phishing), .desktop-onboarding-step-9 .desktop-game-shortcut:not(.desktop-game-shortcut-phishing), .desktop-onboarding-step-10 .desktop-game-shortcut:not(.desktop-game-shortcut-virus), .desktop-onboarding-step-11 .desktop-game-shortcut:not(.desktop-game-shortcut-virus) { filter: brightness(.28); opacity: .48; }
-.desktop-onboarding-layout-11 .desktop-onboarding-dialog, .desktop-onboarding-layout-12 .desktop-onboarding-dialog { width: min(90vw, 54rem); }
+.desktop-onboarding-step-10 .desktop-taskbar { z-index: 270; pointer-events: none; }
+.desktop-onboarding-step-10 .desktop-taskbar button:not(.desktop-task-browser) { filter: brightness(.32); opacity: .5; }
+.desktop-onboarding-step-10 .desktop-task-browser { position: relative; z-index: 271; border-color: #ffe33d; background: #f7f7ef; outline: 4px solid #ffe33d; outline-offset: 1px; filter: none; opacity: 1; box-shadow: inset 2px 2px 0 white, inset -2px -2px 0 #717468, 0 0 12px rgb(255 227 61 / 70%); }
+.desktop-onboarding-step-3 .desktop-game-shortcuts { z-index: 270; outline: 4px solid #ffe33d; outline-offset: 2px; }
+.desktop-onboarding-step-4 .desktop-game-shortcut-privacy, .desktop-onboarding-step-5 .desktop-game-shortcut-privacy, .desktop-onboarding-step-6 .desktop-game-shortcut-phishing, .desktop-onboarding-step-7 .desktop-game-shortcut-phishing, .desktop-onboarding-step-8 .desktop-game-shortcut-virus, .desktop-onboarding-step-9 .desktop-game-shortcut-virus { position: relative; z-index: 270; outline: 4px solid #ffe33d; outline-offset: -2px; background: rgb(35 29 94 / 35%); }
+.desktop-onboarding-step-3 .desktop-game-shortcuts, .desktop-onboarding-step-4 .desktop-game-shortcuts, .desktop-onboarding-step-5 .desktop-game-shortcuts, .desktop-onboarding-step-6 .desktop-game-shortcuts, .desktop-onboarding-step-7 .desktop-game-shortcuts, .desktop-onboarding-step-8 .desktop-game-shortcuts, .desktop-onboarding-step-9 .desktop-game-shortcuts { z-index: 270; position: absolute; pointer-events: none; }
+.desktop-onboarding-step-4 .desktop-game-shortcut:not(.desktop-game-shortcut-privacy), .desktop-onboarding-step-5 .desktop-game-shortcut:not(.desktop-game-shortcut-privacy), .desktop-onboarding-step-6 .desktop-game-shortcut:not(.desktop-game-shortcut-phishing), .desktop-onboarding-step-7 .desktop-game-shortcut:not(.desktop-game-shortcut-phishing), .desktop-onboarding-step-8 .desktop-game-shortcut:not(.desktop-game-shortcut-virus), .desktop-onboarding-step-9 .desktop-game-shortcut:not(.desktop-game-shortcut-virus) { filter: brightness(.28); opacity: .48; }
 .game-app-window > .game-stage { min-height: 0; height: calc(100% - 2.65rem); overflow: auto; }
 .game-app-window .privacy-scene { min-height: calc(100% - 6rem); }
 .game-app-window .phishing-screen { min-height: 0; height: calc(100% - 2.65rem); }
@@ -392,6 +389,14 @@ button:disabled { cursor: not-allowed; filter: grayscale(.65); opacity: .62; }
 .virus-tutorial-delete-marker img:last-child { position: absolute; right: -52%; bottom: -38%; width: 68%; height: auto; filter: drop-shadow(2px 2px 0 #000); }
 .virus-tutorial-safe .virus-tutorial-files > div:first-child, .virus-tutorial-finish .virus-tutorial-files > div:first-child { display: none; }
 .virus-tutorial-safe .virus-tutorial-files, .virus-tutorial-finish .virus-tutorial-files { left: 50%; gap: 0; }
+.virus-tutorial-examples { position: absolute; top: 12%; right: 50%; display: grid; width: min(calc(100% - 3rem), 68rem); grid-template-columns: 1fr 1fr; gap: 2.5rem; transform: translateX(50%); }
+.virus-example-group { position: relative; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .8rem; }
+.virus-example-group:first-child::after { position: absolute; top: 0; right: -1.3rem; bottom: 0; border-right: 3px dashed #d73c57; content: ""; }
+.virus-example-group > div { display: grid; min-width: 0; justify-items: center; gap: .35rem; color: white; text-align: center; text-shadow: 2px 2px 0 #000; }
+.virus-example-icon { position: relative; display: block; width: clamp(3.5rem, 7vw, 5.5rem); height: clamp(3.5rem, 7vw, 5.5rem); }
+.virus-example-icon > img:first-child { width: 100%; height: 100%; object-fit: contain; }
+.virus-example-x { position: absolute; z-index: 2; inset: -.35rem; width: calc(100% + .7rem); height: calc(100% + .7rem); object-fit: contain; }
+.virus-example-group strong { max-width: 100%; overflow-wrap: anywhere; font-size: clamp(.5rem, .85vw, .72rem); }
 .loading-screen { display: grid; min-height: 100dvh; place-items: center; background: var(--color-purple-dark); color: white; }
 .game-loading-screen { display: grid; min-height: 100dvh; place-items: center; padding: max(1rem, env(safe-area-inset-top)) max(1rem, env(safe-area-inset-right)) max(1rem, env(safe-area-inset-bottom)) max(1rem, env(safe-area-inset-left)); background: #756bb6 url('/assets/Home/Background.png') center / cover; color: #171426; }
 .game-loading-window { width: min(100%, 36rem); border: 4px solid #171426; background: #d9dccd; box-shadow: inset 3px 3px 0 white, inset -3px -3px 0 #717468, 9px 9px 0 rgb(8 7 20 / 45%); }
@@ -612,10 +617,8 @@ button:disabled { cursor: not-allowed; filter: grayscale(.65); opacity: .62; }
   .desktop-onboarding-window > span { height: 1.3rem; font-size: .58rem; line-height: .95rem; }
   .desktop-onboarding-window p { font-size: clamp(.88rem, 3.8vw, 1.08rem); line-height: 1.42; }
   .desktop-onboarding-hint { right: max(.5rem, env(safe-area-inset-right)); bottom: calc(2.8rem + env(safe-area-inset-bottom)); font-size: .5rem; }
-  .desktop-onboarding-layout-3 .desktop-onboarding-hint { bottom: calc(2.8rem + env(safe-area-inset-bottom)); }
-  .desktop-onboarding-step-5 .desktop-game-shortcuts, .desktop-onboarding-step-6 .desktop-game-shortcuts, .desktop-onboarding-step-7 .desktop-game-shortcuts, .desktop-onboarding-step-8 .desktop-game-shortcuts, .desktop-onboarding-step-9 .desktop-game-shortcuts, .desktop-onboarding-step-10 .desktop-game-shortcuts, .desktop-onboarding-step-11 .desktop-game-shortcuts { position: relative; }
-  .desktop-onboarding-step-5 .desktop-game-shortcuts { width: 12rem; }
-  .desktop-onboarding-layout-11 .desktop-onboarding-dialog, .desktop-onboarding-layout-12 .desktop-onboarding-dialog { width: auto; }
+  .desktop-onboarding-step-3 .desktop-game-shortcuts, .desktop-onboarding-step-4 .desktop-game-shortcuts, .desktop-onboarding-step-5 .desktop-game-shortcuts, .desktop-onboarding-step-6 .desktop-game-shortcuts, .desktop-onboarding-step-7 .desktop-game-shortcuts, .desktop-onboarding-step-8 .desktop-game-shortcuts, .desktop-onboarding-step-9 .desktop-game-shortcuts { position: relative; }
+  .desktop-onboarding-step-3 .desktop-game-shortcuts { width: 12rem; }
   .virus-game-screen { min-height: 100svh; background-size: auto 100%; background-position: center bottom; touch-action: manipulation; }
   .virus-hud { padding: max(.55rem, env(safe-area-inset-top)) max(.55rem, env(safe-area-inset-right)) .55rem max(.55rem, env(safe-area-inset-left)); }
   .virus-hud .lives-compact { box-sizing: border-box; width: 5.4rem; gap: .1rem; border-width: 3px; padding: .2rem .35rem .3rem; }
@@ -640,6 +643,12 @@ button:disabled { cursor: not-allowed; filter: grayscale(.65); opacity: .62; }
   .virus-tutorial-copy h2 { font-size: .78rem; line-height: 1.35; }
   .virus-tutorial-copy > span:last-child { right: .6rem; bottom: .35rem; font-size: .44rem; }
   .virus-tutorial-delete-marker { width: 3.5rem; height: 3.5rem; }
+  .virus-tutorial-examples { top: 8%; width: calc(100% - 1rem); gap: 1rem; }
+  .virus-example-group { grid-template-columns: 1fr; gap: .25rem; }
+  .virus-example-group:first-child::after { right: -.55rem; }
+  .virus-example-group > div { grid-template-columns: 3.1rem minmax(0, 1fr); align-items: center; justify-items: start; text-align: left; }
+  .virus-example-icon { width: 3rem; height: 3rem; }
+  .virus-example-group strong { font-size: .48rem; }
   .virus-final-backdrop { align-items: center; padding: max(.75rem, env(safe-area-inset-top)) max(.75rem, env(safe-area-inset-right)) max(.75rem, env(safe-area-inset-bottom)) max(.75rem, env(safe-area-inset-left)); }
   .virus-final-backdrop .privacy-answer-popup { width: 100%; grid-template-columns: 6.5rem minmax(0, 1fr); align-items: center; text-align: left; }
   .virus-final-backdrop .privacy-answer-popup > img { width: 7rem; margin: 0; transform: translate(-.5rem, .5rem); }
